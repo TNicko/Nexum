@@ -7,5 +7,10 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-axum = "0.7.2"
+axum = {version = "0.7.2"}
+serde = {version = "1", features = ["derive"]}
+serde_json = {version="1.0.1"}
 
+[dev-dependencies]
+httpc-test = "0.1.8"
+anyhow = "1"
