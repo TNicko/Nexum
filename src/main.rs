@@ -3,7 +3,7 @@ use axum::{
     routing::{get, post},
     http::StatusCode,
     response::{IntoResponse, Response},
-    Router, Json, extract::Query, 
+    Router, Json, extract::{Query, Path}, 
 };
 use serde::{Serialize, Deserialize};
 
@@ -42,6 +42,7 @@ async fn list_users() -> Json<Vec<User>> {
     Json(users)
 }
 
+// e.g. `/user?username=TNicko`
 async fn get_user(Query(params): Query<UserParams>) -> Json<User> {
     println!("->> {:<12} - get_user - {params:?}", "HANDLER");
     
@@ -54,6 +55,19 @@ async fn get_user(Query(params): Query<UserParams>) -> Json<User> {
     Json(user)
 }
 
+// e.g. `/user/nicko`
+async fn get_user2(Path(name): Path<String>) -> Json<User> {
+    println!("->> {:<12} - get_user2 - {name:?}", "HANDLER");
+    
+    let user: User = User {
+        id: 2,
+        name,
+        email: "{username}@email.com".to_string(),
+    };
+    Json(user)
+
+}
+
 #[tokio::main]
 async fn main() {
     // Build app with single route
@@ -61,7 +75,8 @@ async fn main() {
         .route("/", get(|| async { "Hello world!" }))
         .route("/create-user", post(create_user))
         .route("/users", get(list_users))
-        .route("/user", get(get_user));
+        .route("/user", get(get_user))
+        .route("/user/:name", get(get_user2));
 
     println!("Running on http:://0.0.0.0:3000");
 
