@@ -3,15 +3,20 @@ use axum::{
     routing::{get, post},
     http::StatusCode,
     response::{IntoResponse, Response},
-    Router, Json, 
+    Router, Json, extract::Query, 
 };
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
-#[derive(Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct User {
     id: u64,
     name: String,
     email: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct UserParams {
+    username: Option<String>,
 }
 
 async fn create_user() -> impl IntoResponse {
@@ -37,13 +42,26 @@ async fn list_users() -> Json<Vec<User>> {
     Json(users)
 }
 
+async fn get_user(Query(params): Query<UserParams>) -> Json<User> {
+    println!("->> {:<12} - get_user - {params:?}", "HANDLER");
+    
+    let username: &str = params.username.as_deref().unwrap_or("RandomUsername"); 
+    let user: User = User {
+        id: 1,
+        name: username.to_string(),
+        email: "{username}@email.com".to_string(),
+    };
+    Json(user)
+}
+
 #[tokio::main]
 async fn main() {
     // Build app with single route
     let app = Router::new()
         .route("/", get(|| async { "Hello world!" }))
         .route("/create-user", post(create_user))
-        .route("/users", get(list_users));
+        .route("/users", get(list_users))
+        .route("/user", get(get_user));
 
     println!("Running on http:://0.0.0.0:3000");
 
