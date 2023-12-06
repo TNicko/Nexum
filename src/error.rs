@@ -1,12 +1,15 @@
+use axum::http::StatusCode;
+use axum::response::{IntoResponse, Response};
+
 // ---------
 // IMPORTANT! : never pass server errors to client (secret exposure)
 // ---------
 //
 // TODO: Server has all information and cherry pick what client receives.
 
-pub type Result<T> = cor::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Error {}
 
 impl core::fmt::Display for Error {
