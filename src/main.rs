@@ -1,3 +1,5 @@
+pub use self::error::{Error, Result};
+
 use axum::{
     body::Body,
     routing::{get, post},
@@ -5,7 +7,10 @@ use axum::{
     response::{IntoResponse, Response},
     Router, Json, extract::{Query, Path}, 
 };
+use tokio::net::TcpListener;
 use serde::{Serialize, Deserialize};
+
+mod error;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct User {
@@ -68,21 +73,25 @@ async fn get_user2(Path(name): Path<String>) -> Json<User> {
 
 }
 
+fn routes_users() -> Router {
+    Router::new()
+        .route("/create-user", post(create_user))
+        .route("/users", get(list_users))
+        .route("/user", get(get_user))
+        .route("/user/:name", get(get_user2))
+}
+
 #[tokio::main]
 async fn main() {
     // Build app with single route
     let app = Router::new()
         .route("/", get(|| async { "Hello world!" }))
-        .route("/create-user", post(create_user))
-        .route("/users", get(list_users))
-        .route("/user", get(get_user))
-        .route("/user/:name", get(get_user2));
-
-    println!("Running on http:://0.0.0.0:3000");
+        .merge(routes_users());
 
     // Run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    println!("->> LISTENING on {:?}\n", listener.local_addr());
+    axum::serve(listener, app.into_make_service()).await.unwrap();
 }
 
 
