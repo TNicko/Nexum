@@ -10,7 +10,10 @@ use axum::response::{IntoResponse, Response};
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Clone, Debug)]
-pub enum Error {}
+pub enum Error {
+    // -- Model errors
+    MessageDeleteFailIdNotFound { id: u64 },
+}
 
 impl core::fmt::Display for Error {
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
