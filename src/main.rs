@@ -1,5 +1,5 @@
 pub use self::error::{Error, Result};
-
+use crate::model::ModelController;
 use axum::{
     body::Body,
     routing::{get, post},
@@ -11,6 +11,8 @@ use tokio::net::TcpListener;
 use serde::{Serialize, Deserialize};
 
 mod error;
+mod web;
+mod model;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct User {
@@ -82,16 +84,21 @@ fn routes_users() -> Router {
 }
 
 #[tokio::main]
-async fn main() {
-    // Build app with single route
+async fn main() -> Result<()>{
+
+    let mc = ModelController::new().await?;
+
     let app = Router::new()
         .route("/", get(|| async { "Hello world!" }))
+        .nest("/api", web::routes_messages::routes(mc.clone()))
         .merge(routes_users());
 
     // Run our app with hyper, listening globally on port 3000
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
     println!("->> LISTENING on {:?}\n", listener.local_addr());
     axum::serve(listener, app.into_make_service()).await.unwrap();
+
+    Ok(())
 }
 
 
