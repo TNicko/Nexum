@@ -5,7 +5,7 @@ use serde_json::json;
 
 #[tokio::test]
 async fn quick_dev() -> Result<()> {
-    let hc = httpc_test::new_client("http://localhost:3000")?;
+    let hc = httpc_test::new_client("http://localhost:8000")?;
     hc.do_get("/user/nicko").await?.print().await?;
 
     let req_create_msg = hc.do_post(
