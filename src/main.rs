@@ -23,13 +23,10 @@ async fn main() -> Result<()>{
 
     let mc = ModelController::new().await?;
     
-
-    // TODO:
-    // - allow methods
-    // - allow credentials
-    // - allow headers
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:5173".parse::<HeaderValue>().unwrap());
+        .allow_origin("http://localhost:5173".parse::<HeaderValue>().unwrap())
+        .allow_methods([Method::GET, Method::POST])
+        .allow_headers([CONTENT_TYPE]);
 
     let app = Router::new()
         .route("/", get(|| async { "Hello world!" }))
