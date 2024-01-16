@@ -16,10 +16,13 @@ mod error;
 mod web;
 mod model;
 
-extern crate dotenv;
+use dotenv::dotenv;
+use std::env;
+
 
 #[tokio::main]
 async fn main() -> Result<()>{
+    dotenv().ok();
 
     let mc = ModelController::new().await?;
     
