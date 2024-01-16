@@ -6,10 +6,24 @@ use axum::{Json, Router};
 
 pub fn routes(mc: ModelController) -> Router {
     Router::new()
+        .route("/query", post(query))
         .route("/messages", post(create_message).get(list_messages))
         .route("/messages/:id", delete(delete_message))
         .with_state(mc)
 }
+
+
+async fn query(
+    State(mc): State<ModelController>,
+    Json(message_fc): Json<MessageForCreate>,
+) -> Result<Json<Message>> {
+    println!("->> {:<12} - query", "HANDLER");
+    
+    let message = mc.create_message(message_fc).await?;
+    Ok(Json(message))
+}
+
+// -- DUMMY EXAMPLE ENDPOINTS -- 
 
 async fn create_message(
     State(mc): State<ModelController>,
