@@ -16,6 +16,8 @@ mod error;
 mod web;
 mod model;
 
+extern crate dotenv;
+
 #[tokio::main]
 async fn main() -> Result<()>{
 
@@ -27,14 +29,14 @@ async fn main() -> Result<()>{
     // - allow credentials
     // - allow headers
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap());
+        .allow_origin("http://localhost:5173".parse::<HeaderValue>().unwrap());
 
     let app = Router::new()
         .route("/", get(|| async { "Hello world!" }))
         .nest("/api", web::routes_messages::routes(mc.clone()))
         .layer(cors);
 
-    // Run our app with hyper, listening globally on port 3000
+    // Run our app with hyper, listening globally on port 8000
     let listener = TcpListener::bind("0.0.0.0:8000").await.unwrap();
     println!("->> LISTENING on {:?}\n", listener.local_addr());
     axum::serve(listener, app.into_make_service()).await.unwrap();
