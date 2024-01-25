@@ -1,7 +1,7 @@
 pub use self::error::{Error, Result};
 use crate::model::ModelController;
 use axum::{
-    routing::get,
+    routing::{get, post},
     Router, 
 };
 use tokio::net::TcpListener;
