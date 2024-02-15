@@ -27,9 +27,7 @@ class CreateMessage(BaseModel):
 
 
 @app.post("/api/query")
-async def query(message_fc: CreateMessage) -> CreateMessage:
-    mc = ModelController()
-    message = await mc.create_message(message_fc.dict())
-    print(message)
+async def query(request: CreateMessage) -> CreateMessage:
+    print(request)
 
-    return message
+    return request
