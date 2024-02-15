@@ -1,8 +1,10 @@
 use crate::model::{ModelController, Message, MessageForCreate};
-use crate::Result;
+use crate::error::Result;
 use axum::extract::{State, Path};
 use axum::routing::{post, delete};
-use axum::{Json, Router};
+use axum::{body, Json, Router};
+use serde_json::json;
+use serde_json::Value;
 
 pub fn routes(mc: ModelController) -> Router {
     Router::new()
@@ -16,11 +18,15 @@ pub fn routes(mc: ModelController) -> Router {
 async fn query(
     State(mc): State<ModelController>,
     Json(message_fc): Json<MessageForCreate>,
-) -> Result<Json<Message>> {
+) -> Result<Json<Value>> {
     println!("->> {:<12} - query", "HANDLER");
-    
-    let message = mc.create_message(message_fc).await?;
-    Ok(Json(message))
+    println!("{}", message_fc.message);
+    let body = Json(json!({
+        "id" : 133,
+        "messagep1" : "wf"
+
+    }));
+    Ok(body)
 }
 
 // -- DUMMY EXAMPLE ENDPOINTS -- 

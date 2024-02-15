@@ -34,6 +34,7 @@ async fn main() -> Result<()>{
     let app = Router::new()
         .route("/", get(|| async { "Hello world!" }))
         .nest("/api", web::routes_messages::routes(mc.clone()))
+        .nest("/ai", web::aiapi::routes(mc.clone()))
         .layer(cors);
 
     // Run our app with hyper, listening globally on port 8000
