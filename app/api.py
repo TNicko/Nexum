@@ -2,8 +2,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Query, UploadFile, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from app.db.supabase import create_supabase_client
 
 app = FastAPI()
+
+supabase = create_supabase_client()
 
 origins = ["http://localhost:5173", "localhost:5173"]
 
