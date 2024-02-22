@@ -19,6 +19,8 @@ vstore = SupabaseVectorStore(
     query_name="match_documents",
 )
 query = "what is loughborough unis history?"
+# k : number of retrieved results
+# filter : metadata to filer responses
 matched_docs = vstore.similarity_search_with_relevance_scores(
     query=query, k=5, filter=None
 )
