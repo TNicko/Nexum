@@ -42,20 +42,21 @@ def getMatched(queryToMatch):
         embedding=embeddings,
         client=supabase,
         table_name="documents",
-        query_name="match_documents",
+        query_name="jack_match_documents",
     )
+    query = "what is loughborough unis history?"
     # k : number of retrieved results
     # filter : metadata to filer responses
     matched_docs = vstore.similarity_search_with_relevance_scores(
-        query=queryToMatch, k=30, filter=None
+        query=query, k=2, filter=None
     )
-    #for doc in matched_docs:
-        #print(f"{type(doc)}\n")
-    #    print(f"{doc[0]}\n")
-    documentString = ""
     for doc in matched_docs:
-        documentString = documentString + "Website chunk --- " + (doc[0].page_content) + " --- "
-    return documentString
+        print(f"{type(doc)}\n")
+        print(f"{doc}\n")
+    #documentString = ""
+    #for doc in matched_docs:
+    #    documentString = documentString + "Website chunk --- " + (doc[0].page_content) + " --- "
+    #return documentString
 
 def doGPTRequest(query, givenDocuments):
     loader = WebBaseLoader("https://docs.smith.langchain.com/overview")
@@ -81,5 +82,5 @@ def doGPTRequest(query, givenDocuments):
 
 question = "Retrieve every business module"
 docsToGive = (getMatched(question))
-print(doGPTRequest(question, docsToGive))
+#print(doGPTRequest(question, docsToGive))
 #print(getMatched("Retrieve every module in business"))
