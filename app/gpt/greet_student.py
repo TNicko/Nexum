@@ -47,11 +47,11 @@ def getMatched(queryToMatch):
     # k : number of retrieved results
     # filter : metadata to filer responses
     matched_docs = vstore.similarity_search_with_relevance_scores(
-        query=queryToMatch, k=10, filter=None
+        query=queryToMatch, k=30, filter=None
     )
     #for doc in matched_docs:
-    #    print(f"{type(doc)}\n")
-    #    #print(f"{doc[0].page_content}\n")
+        #print(f"{type(doc)}\n")
+    #    print(f"{doc[0]}\n")
     documentString = ""
     for doc in matched_docs:
         documentString = documentString + "Website chunk --- " + (doc[0].page_content) + " --- "
@@ -69,14 +69,17 @@ def doGPTRequest(query, givenDocuments):
     llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a bot designed to parse information from several chunks of text from websites, giving an answer to a given question. You must only use information from the chunks themselves and not come up with any information on your own. If the answer isn't found within the chunks, reply with 'Sorry, this is outside the scope of my information' rather than making up an answer."),
+        ("system", "You are a bot designed to parse information from several chunks of text from websites, giving an answer to a given question or demand. You must only use information from the chunks themselves and not come up with any information on your own. If the answer isn't found within the chunks, reply with 'Sorry, this is outside the scope of my information' rather than making up an answer."),
         ("user", "{input}")
     ])
     chain = prompt | llm | output_parser
 
     return(chain.invoke({"input": "Question: "+query+" Information: "+givenDocuments}))
+#todo:
+#make it so that the url of the ource website is referenced after a piece of the the response it created
+#to do this, you'll have to update the searc function to also get the url and return it to documents. Add it to the end of each string before --- website chunk --- 
 
-
-question = "Who is the current head of the university?"
+question = "Retrieve every business module"
 docsToGive = (getMatched(question))
 print(doGPTRequest(question, docsToGive))
+#print(getMatched("Retrieve every module in business"))
