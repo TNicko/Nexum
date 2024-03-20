@@ -1,9 +1,2 @@
-.env
-.venv
 .DS_Store
-build/
-dist/
-__pycache__/
 
-test.json
-vector.py

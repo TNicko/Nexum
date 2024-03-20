@@ -1,0 +1,58 @@
+@import url("fonts.css");
+
+:root {
+  font-family: "StyreneA", Inter, system-ui, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --white: #ffffff;
+
+	--brand-300: #b99dd4;
+	--brand-500: #8b1dd9;
+	--brand-600: #470f6e;
+
+	--fade-100: 275deg 100% 86%;
+	--fade-200: 267deg 95% 82%;
+
+	--bg-100: #f6f9f3;
+  --bg-200: #fafbee;
+  --bg-300: #eef1e1;
+  --bg-400: #e9ece7;
+  --bg-500: #e2e4ca;
+
+  --text-100: #848582;
+  --text-200: #60615f;
+  --text-300: #4b4c4a;
+  --text-400: #353534;
+
+  --red-200: #f6a9a2;
+  --red-500: #ee5d50;
+  --red-600: #e31a1a;
+
+  /*background: #f0e7f2;*/
+  background: var(--bg-300);
+  color: var(--text-400);
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #747bff;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+p {
+  margin: 0;
+  padding: 0;
+}

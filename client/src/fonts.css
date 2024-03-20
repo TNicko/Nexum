@@ -1,0 +1,175 @@
+/* StyreneA Black */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: normal;
+  font-weight: 900;
+  src: url('/fonts/StyreneA-Black-Trial-BF63f6cbd9da245.otf') format('opentype');
+}
+
+/* StyreneA Black Italic */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: italic;
+  font-weight: 900;
+  src: url('/fonts/StyreneA-BlackItalic-Trial-BF63f6cbd7cb688.otf') format('opentype');
+}
+
+/* StyreneA Bold */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/StyreneA-Bold-Trial-BF63f6cbda1877f.otf') format('opentype');
+}
+
+/* StyreneA Bold Italic */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: italic;
+  font-weight: 700;
+  src: url('/fonts/StyreneA-BoldItalic-Trial-BF63f6cbd9bec08.otf') format('opentype');
+}
+
+/* StyreneA Light */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/StyreneA-Light-Trial-BF63f6cbd99dc3e.otf') format('opentype');
+}
+
+/* StyreneA Light Italic */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: italic;
+  font-weight: 300;
+  src: url('/fonts/StyreneA-LightItalic-Trial-BF63f6cbd9cb933.otf') format('opentype');
+}
+
+/* StyreneA Medium */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/StyreneA-Medium-Trial-BF63f6cbdb24b6d.otf') format('opentype');
+}
+
+/* StyreneA Medium Italic */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: italic;
+  font-weight: 500;
+  src: url('/fonts/StyreneA-MediumItalic-Trial-BF63f6cbd925a68.otf') format('opentype');
+}
+
+/* StyreneA Regular */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/StyreneA-Regular-Trial-BF63f6cbd970ee9.otf') format('opentype');
+}
+
+/* StyreneA Regular Italic */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/fonts/StyreneA-RegularItalic-Trial-BF63f6cbd94325f.otf') format('opentype');
+}
+
+/* StyreneA Thin */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: normal;
+  font-weight: 100;
+  src: url('/fonts/StyreneA-Thin-Trial-BF63f6cbd91263f.otf') format('opentype');
+}
+
+/* StyreneA Thin Italic */
+@font-face {
+  font-family: 'StyreneA';
+  font-style: italic;
+  font-weight: 100;
+  src: url('/fonts/StyreneA-ThinItalic-Trial-BF63f6cbd95634b.otf') format('opentype');
+}
+
+/* StyreneB Bold */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/StyreneB-Bold-Trial-BF63f6cbe9f13bb.otf') format('opentype');
+}
+
+/* StyreneB Bold Italic */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: italic;
+  font-weight: 700;
+  src: url('/fonts/StyreneB-BoldItalic-Trial-BF63f6cbe6863e6.otf') format('opentype');
+}
+
+/* StyreneB Light */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/StyreneB-Light-Trial-BF63f6cbe64b47b.otf') format('opentype');
+}
+
+/* StyreneB Light Italic */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: italic;
+  font-weight: 300;
+  src: url('/fonts/StyreneB-LightItalic-Trial-BF63f6cbe9d67d1.otf') format('opentype');
+}
+
+/* StyreneB Medium */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/StyreneB-Medium-Trial-BF63f6cc85760c2.otf') format('opentype');
+}
+
+/* StyreneB Medium Italic */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: italic;
+  font-weight: 500;
+  src: url('/fonts/StyreneB-MediumItalic-Trial-BF63f6cc84a421a.otf') format('opentype');
+}
+
+/* StyreneB Regular */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/StyreneB-Regular-Trial-BF63f6cbe9db1d5.otf') format('opentype');
+}
+
+/* StyreneB Regular Italic */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/fonts/StyreneB-RegularItalic-Trial-BF63f6cbe5c1942.otf') format('opentype');
+}
+
+/* StyreneB Thin */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: normal;
+  font-weight: 100;
+  src: url('/fonts/StyreneB-Thin-Trial-BF63f6cc84a4246.otf') format('opentype');
+}
+
+/* StyreneB Thin Italic */
+@font-face {
+  font-family: 'StyreneB';
+  font-style: italic;
+  font-weight: 100;
+  src: url('/fonts/StyreneB-ThinItalic-Trial-BF63f6cbe8d3333.otf') format('opentype');
+}

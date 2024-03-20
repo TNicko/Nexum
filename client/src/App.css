@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&family=Lavishly+Yours&family=Michroma&family=Tangerine:wght@400;700&family=Tenor+Sans&family=Wallpoet&family=Zen+Loop:ital@0;1&display=swap');
+
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+	display: flex;
+	justify-content: center;
+}
+
+.main-container {
+	margin-top: -15px;
+	margin-bottom: 10%;
+  display: flex;
+	align-items: center;
+  flex-direction: column;
+	width: 90%;
+	height: 100%;
+	max-width: 900px;
+}
+
+.background{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+	width: 100%;
+	justify-content: center;
+  transform: translate(-50%, -50%);
+  display: flex;
+  /*flex-direction: column;*/
+  align-items: center;
+}
+
+.image {
+  background-image: url('./assets/uni_icon2.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100px; 
+  height: 100px; 
+}
+
+.intro-text {
+	font-family: 'StyreneB';
+  margin-top: 20px; 
+  font-size: 30px;
+	font-weight: 400;
+  display: fixed;
+  text-align: center;
+  color: var(--text-200);
+}
+
+.background-faded{
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-left: 1vh;
+  margin-top: 0.5vh;
+  margin-bottom: 25px;
+  width: 100%;
+  color: var(--bg-300);
+  opacity: 1;
+}
+
+.main-conversation {
+	width: 100%;
+}
+
+.stack-container{
+  overflow: auto;
+  display: flex;
+	flex-direction: column;
+	margin: auto;
+}
+
+.input-container {
+	position: fixed;
+	z-index: 100;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	width: 90%;
+	max-width: 900px;
+	margin-top: 10px;
+	padding-bottom: 10px;
+	background: var(--bg-300);
+	border-radius: 8px;
+	box-shadow: 0 -8px 10px 1px var(--bg-300);
+}
+
+/* Fonts */
+
+.bruno-ace-regular {
+  font-family: "Bruno Ace", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.wallpoet-regular {
+  font-family: "Wallpoet", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.tenor-sans-regular {
+  font-family: "Tenor Sans", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.michroma-regular {
+  font-family: "Michroma", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.tangerine-regular {
+  font-family: "Tangerine", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.tangerine-bold {
+  font-family: "Tangerine", cursive;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.lavishly-yours-regular {
+  font-family: "Lavishly Yours", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+.zen-loop-regular {
+  font-family: "Zen Loop", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.zen-loop-regular-italic {
+  font-family: "Zen Loop", cursive;
+  font-weight: 400;
+  font-style: italic;
+}

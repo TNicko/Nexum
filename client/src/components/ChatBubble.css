@@ -1,0 +1,56 @@
+.chat-text {
+	position: relative;
+}
+
+
+.ai-bubble {
+	margin-bottom: 25px;
+}
+
+/* User's message bubble */
+.user-message {
+  align-self: flex-start;
+ 	color: var(--text-400); 
+	border-radius: 12px;
+	--tw-gradient-to: hsl(var(--fade-100)/1) 80%;
+	--tw-gradient-from: hsl(var(--fade-200)/1) 1%;
+	--tw-gradient-stops: var(--tw-gradient-from),var(--tw-gradient-to);
+	background-image: linear-gradient(to bottom,var(--tw-gradient-stops));
+}
+
+/* AI's message bubble */
+.ai-message {
+	color: var(--text-300);
+  background-color: var(--bg-200);
+  align-self: flex-end;
+	border-radius: 0 0 12px 12px;
+  border: 1px solid transparent; 
+}
+
+.bubble-opts {
+	display: none;
+	position: absolute;
+	align-items: center;
+	padding: 3px 7px;
+	border: 0.5px solid var(--text-100); 
+	border-radius: 5px; 
+	background: var(--white);
+	bottom: -15px;
+	right: 5px;
+}
+
+.bubble-opt {
+	font-size: 10px;
+	gap: 3px;
+	display: flex;
+	align-items: center;
+}
+.bubble-opts:hover {
+	cursor: pointer;
+	background: var(--bg-400);
+}
+
+.ai-bubble:hover .bubble-opts {
+	display: flex
+}
+
