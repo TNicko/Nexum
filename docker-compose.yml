@@ -1,0 +1,17 @@
+version: "3"
+services:
+  server:
+    container_name: server
+    build: server/
+    command: python ./main.py
+    ports: 
+      - 8000:8000
+    env_file:
+      - ./server/.env
+  
+  client:
+    container_name: client
+    build: client/
+    command: npm run dev
+    ports:
+      - 5173:5173
