@@ -14,7 +14,7 @@ from typing import AsyncIterable, Awaitable
 
 supabase = create_supabase_client()
 
-origins = ["http://localhost:5173"]
+origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://0.0.0.0:5173"]
 
 app.add_middleware(
     CORSMiddleware,
