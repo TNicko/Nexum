@@ -22,11 +22,12 @@ const Sources: React.FC<SourcesProps> = ({ refs }) => {
     >
       {refs?.map((ref, index) => (
         <div
+					key={index}
           className={`source-wrapper ${hoveredSource === index ? "focused" : ""}`}
           onMouseEnter={() => setHoveredSource(index)}
           onMouseLeave={() => setHoveredSource(null)}
         >
-          <a className="source" key={index} href={ref}>
+          <a className="source"  href={ref}>
             <img
               src={`https://s2.googleusercontent.com/s2/favicons?domain=${new URL(ref).hostname}&sz=64`}
               alt="icon"
