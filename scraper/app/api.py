@@ -1,10 +1,7 @@
 from fastapi import FastAPI
-from app.db.supabase import create_supabase_client
-from app.celery_app.config import run_scrapy_spider
+from app.celery_app.tasks.uni_website_task import run_scrapy_spider
+from app.celery_app.tasks.events_task import fetch_and_store_events  
 app = FastAPI()
-
-supabase = create_supabase_client()
-
 
 @app.post("/run-spider")
 async def run_spider():
@@ -12,5 +9,7 @@ async def run_spider():
     return {"message": "Spider is running..."}
 
 
-
-
+@app.post("/run-events")
+async def run_events():
+    fetch_and_store_events.delay()
+    return {"message": "Extracting & Storing Events..."} 
