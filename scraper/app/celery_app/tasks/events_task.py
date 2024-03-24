@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 @celery_app.task(bind=True)
 def fetch_and_store_events(self):
     task_id = self.request.id
-    logger.info(f"Task {task_id} started: Fetching and storing events")
+    logger.info(f"Task {task_id} started: Fetching and storing events.")
     
     supabase = create_supabase_client()
     url = "https://pluto.sums.su/api/events?perPage=200&sortBy=start_date&futureOrOngoing=1&onlyPremium=1"

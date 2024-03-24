@@ -8,6 +8,7 @@ load_dotenv()
 
 TASKS = [
     "app.celery_app.tasks.events_task.py",
+    "app.celery_app.tasks.societies_task.py",
     "app.celery_app.tasks.uni_website_task.py",
 ]
 
