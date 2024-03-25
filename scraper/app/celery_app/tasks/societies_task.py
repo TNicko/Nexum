@@ -9,10 +9,9 @@ logger = get_task_logger("societes_task")
 logger.setLevel(logging.INFO)
 
 
-@celery_app.task(bind=True)
-def fetch_and_store_societies(self):
-    task_id = self.request.id
-    logger.info(f"Task {task_id} started: Fetching and storing events.")
+@celery_app.task(name="societies")
+def fetch_and_store_societies():
+    logger.info(f"Fetching and storing societies...")
 
     supabase = create_supabase_client()
     SOCIETY_BASE_URL = "https://lsu.co.uk/societies/"

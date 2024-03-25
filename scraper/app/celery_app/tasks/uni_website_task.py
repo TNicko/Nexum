@@ -7,7 +7,7 @@ from scrapy.crawler import CrawlerProcess
 logger = get_task_logger("uni_website_task")
 logger.setLevel(logging.INFO)
 
-@celery_app.task
+@celery_app.task(name="uni-website")
 def run_scrapy_spider():
     logger.info("Running scraping task...")
     process = CrawlerProcess()

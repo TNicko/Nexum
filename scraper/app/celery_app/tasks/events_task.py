@@ -9,10 +9,9 @@ logger = get_task_logger("events_task")
 logger.setLevel(logging.INFO)
 
 
-@celery_app.task(bind=True)
-def fetch_and_store_events(self):
-    task_id = self.request.id
-    logger.info(f"Task {task_id} started: Fetching and storing events.")
+@celery_app.task(name="events")
+def fetch_and_store_events():
+    logger.info(f"Fetching and storing events...")
     
     supabase = create_supabase_client()
     url = "https://pluto.sums.su/api/events?perPage=200&sortBy=start_date&futureOrOngoing=1&onlyPremium=1"
@@ -21,15 +20,15 @@ def fetch_and_store_events(self):
     try:
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            logger.error(f"Task {task_id} failed: HTTP error {response.status_code} fetching events")
+            logger.error(f"HTTP error {response.status_code} fetching events")
             return
 
         events = response.json().get("data", [])
         if not events:
-            logger.info(f"Task {task_id} completed: No new events to store")
+            logger.info(f"Completed: No new events to store")
             return
 
-        logger.info(f"Task {task_id}: Found {len(events)} events, starting upsert operations")
+        logger.info(f"Found {len(events)} events, starting upsert operations")
 
         event_data_list = [{
             "id": event.get("id"),
