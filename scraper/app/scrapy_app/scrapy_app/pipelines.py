@@ -54,6 +54,7 @@ class ScrapyAppPipeline:
             .eq("url", url)
             .execute()
         )
+        
         page_chunks = response.data
         if not page_chunks:
             logger.debug("Page does not exist yet. Uploading page content...")
@@ -64,6 +65,7 @@ class ScrapyAppPipeline:
             self.upsert_documents(documents)
 
         elif (page_chunks[0])["page_hash"] == content_hash:
+            log_time("Hash comparison time: ", hash_start_time)
             logger.debug("Hash is the same. Ignoring...")
 
         else:
