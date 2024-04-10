@@ -86,6 +86,17 @@ def simplifyMessageHistory(messageHistory):
 
     return(chain.invoke({"input": messageHistory}))
 
+def generateMYSQLReq(toMakeSQL):
+    llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
+    output_parser = StrOutputParser()
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a bot designed to write a mysql request based on an question or statement for the 'events' table on the 'websites' database."),
+        ("user", "{input}")
+    ])
+    chain = prompt | llm | output_parser
+
+    return(chain.invoke({"input": toMakeSQL}))
+
 def beautify(messageToSimplify):
     embeddings = OpenAIEmbeddings()
     #print(messageHistory)
@@ -121,11 +132,12 @@ def gptPipeline(message):
 
 #todo:
 #make it so that the url of the ource website is referenced after a piece of the the response it created
-#to do this, you'll have to update the searc function to also get the url and return it to documents. Add it to the end of each string before --- website chunk --- 
+#to do this, you'll have to update the search function to also get the url and return it to documents. Add it to the end of each string before --- website chunk --- 
 
-#question = "Retrieve every business module"
+question = "what sports events are happening in july?"
 #docsToGive = (getMatchedVector(question))
 #print(doGPTRequest(question, docsToGive))
+print(generateMYSQLReq(question))
 #print(getMatched("Retrieve every module in business"))
 #print(gptPipeline('{ "Messages":["Hello! How can I help?", "What modules are available for computer science?", "I dont know the answer to that.", "whos the head of the uni?"]}'))
 
