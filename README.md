@@ -15,7 +15,7 @@ campus life, and more, enhancing the student and staff experience.
 ### Setting up environment
 1. **Clone the repository**:
 	```bash
-   git clone https://github.com/your-repo/nexum.git
+   git clone https://github.com/TNicko/Nexum.git
    cd nexum 
    ```
 
