@@ -30,6 +30,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
 
+
 def getVectorizedData(queryToMatch):
     load_dotenv()
 
@@ -55,6 +56,7 @@ def getVectorizedData(queryToMatch):
     #    print(f"{doc}\n")
     documentString = ""
     for doc in matched_docs:
+        print(doc)
         documentString = documentString + "Website chunk --- " + (doc[0].page_content) + " --- "
 
 
@@ -63,7 +65,8 @@ def getVectorizedData(queryToMatch):
     llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a bot designed to parse information from several chunks of text from websites, giving an answer to a given question or statement. You must only use information from the chunks themselves and not come up with any information on your own. If the answer isn't found within the chunks, reply with 'Sorry, this is outside the scope of my information' rather than making up an answer."),
+        #("system", "You are a bot designed to parse information from several chunks of text from websites, giving an answer to a given question or statement. You must only use information from the chunks themselves and not come up with any information on your own. If the answer isn't found within the chunks, reply with 'Sorry, this is outside the scope of my information' rather than making up an answer."),
+        ("system", "Parse information from several chunks of text from websites to answer a question or statement. Only use information from the chunks themselves and not come up with any information on your own. If the answer isn't found within the chunks, reply with 'Sorry, this is outside the scope of my information' rather than making up an answer. Make sure to include all relevant information."),
         ("user", "{input}")
     ])
     chain = prompt | llm | output_parser
@@ -72,6 +75,7 @@ def getVectorizedData(queryToMatch):
 
 
 def simplifyMessageHistory(messageHistory):
+    load_dotenv()
     embeddings = OpenAIEmbeddings()
     messageHistory = "---".join(messageHistory)
     #print(messageHistory)
@@ -79,7 +83,8 @@ def simplifyMessageHistory(messageHistory):
     llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a bot designed to take a series of in order messages, seperated by ---, between a student and a chatbot and return a simplified question based on the most recent message. If the last message relates to previous messages sent, you should take that into account when forming the simplified request. You must only use information from the messages themselves and not come up with any information on your own."),
+        #("system", "You are a bot designed to take a series of in order messages, seperated by ---, between a student and a chatbot and return a simplified question based on the most recent message. If the last message relates to previous messages sent, you should take that into account when forming the simplified request. You must only use information from the messages themselves and not come up with any information on your own."),
+        ("system", "Based on this series of messages between a user and a chatbot, what is the latest thing the user is asking? Only say the answer and nothing else."),
         ("user", "{input}")
     ])
     chain = prompt | llm | output_parser
@@ -87,6 +92,7 @@ def simplifyMessageHistory(messageHistory):
     return(chain.invoke({"input": messageHistory}))
 
 def generateMYSQLReq(toMakeSQL):
+    load_dotenv()
     llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_messages([
@@ -98,6 +104,7 @@ def generateMYSQLReq(toMakeSQL):
     return(chain.invoke({"input": toMakeSQL}))
 
 def beautify(messageToSimplify):
+    load_dotenv()
     embeddings = OpenAIEmbeddings()
     #print(messageHistory)
 
@@ -117,14 +124,16 @@ def beautify(messageToSimplify):
 # 4 - return result to client
 
 def gptPipeline(message):
+    load_dotenv()
     simplifiedRequest = simplifyMessageHistory(message)
     #print(simplifiedRequest)
     vectorizedReturn = getVectorizedData(simplifiedRequest)
+    #print(vectorizedReturn)
     #nonVectorizedReturn = getNonVectorizedData(simplifiedRequest)
     #if ((vectorizedReturn =! False) and (nonVectorizedReturn =! False)):
     #    return merge(beautify(vectorizedReturn), beautify(nonVectorizedReturn))
     responseToUser = beautify(vectorizedReturn)
-    print(responseToUser)
+    #print(responseToUser)
     return responseToUser
 
 
@@ -134,10 +143,10 @@ def gptPipeline(message):
 #make it so that the url of the ource website is referenced after a piece of the the response it created
 #to do this, you'll have to update the search function to also get the url and return it to documents. Add it to the end of each string before --- website chunk --- 
 
-question = "what sports events are happening in july?"
+#question = "what sports events are happening in july?"
 #docsToGive = (getMatchedVector(question))
 #print(doGPTRequest(question, docsToGive))
-print(generateMYSQLReq(question))
-#print(getMatched("Retrieve every module in business"))
-#print(gptPipeline('{ "Messages":["Hello! How can I help?", "What modules are available for computer science?", "I dont know the answer to that.", "whos the head of the uni?"]}'))
+#print(generateMYSQLReq(question))
+#print(getVectorizedData("Retrieve every module in business"))
+print(gptPipeline('{ "Messages":["Hello! How can I help?", "What modules are available for computer science?", "I dont know the answer to that.", "what module is CMD213"]}'))
 
