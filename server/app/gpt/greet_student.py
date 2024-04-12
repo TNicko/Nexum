@@ -15,6 +15,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_community.document_loaders import TextLoader
 from langchain_core.documents import Document
+
 from dotenv import load_dotenv
 
 from langchain.chains.query_constructor.base import AttributeInfo
@@ -26,9 +27,20 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate,
     SystemMessagePromptTemplate,
 )
+
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
+from operator import itemgetter
+from langchain_community.utilities import SQLDatabase
+from langchain.chains import create_sql_query_chain
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from sqlalchemy import URL
+from langchain_community.agent_toolkits import create_sql_agent
 
 
 def getVectorizedData(queryToMatch):
@@ -103,6 +115,61 @@ def generateMYSQLReq(toMakeSQL):
 
     return(chain.invoke({"input": toMakeSQL}))
 
+def getNonVectorizedData(message):
+    POSTGRES_URI = os.getenv("POSTGRES_URI")
+
+    # We dont want any other tables (for now) to be able to be queried
+    include_tables = ["events", "societies"]
+
+    db = SQLDatabase.from_uri(POSTGRES_URI, include_tables=include_tables)
+
+
+    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+    chain = create_sql_query_chain(llm, db)
+
+    execute_query = QuerySQLDataBaseTool(db=db)
+    write_query = create_sql_query_chain(llm, db)
+
+    answer_prompt = PromptTemplate.from_template(
+        """
+        Given the following user question, corresponding SQL query, and SQL result, answer the user question.
+
+        Question: {question}
+        SQL Query: {query}
+        SQL Result: {result}
+        Answer: 
+        """
+    )
+
+    answer = answer_prompt | llm | StrOutputParser()
+    chain = (
+        RunnablePassthrough.assign(query=write_query).assign(
+            result=itemgetter("query") | execute_query
+        )
+        | answer
+    )
+
+    context = db.get_context()
+    #print(list(context))
+    #print(context["table_info"])
+    query = message
+    response = chain.invoke({"question": query})
+
+    # -- system prompt
+    #print(chain.get_prompts()[0].pretty_print())
+
+    print(response)
+
+    #print(db.run(response))
+    agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True)
+    response = agent_executor.invoke(
+        {
+            "input": query
+        }
+    )
+    return response   
+
+
 def beautify(messageToSimplify):
     load_dotenv()
     embeddings = OpenAIEmbeddings()
@@ -129,7 +196,7 @@ def gptPipeline(message):
     #print(simplifiedRequest)
     vectorizedReturn = getVectorizedData(simplifiedRequest)
     #print(vectorizedReturn)
-    #nonVectorizedReturn = getNonVectorizedData(simplifiedRequest)
+    nonVectorizedReturn = getNonVectorizedData(simplifiedRequest)
     #if ((vectorizedReturn =! False) and (nonVectorizedReturn =! False)):
     #    return merge(beautify(vectorizedReturn), beautify(nonVectorizedReturn))
     responseToUser = beautify(vectorizedReturn)
