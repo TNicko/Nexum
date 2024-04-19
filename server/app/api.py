@@ -8,6 +8,8 @@ from langchain.schema import HumanMessage
 from pydantic import BaseModel
 from app.db.supabase import create_supabase_client
 
+from app.gpt.greet_student import gptPipeline
+
 app = FastAPI()
 
 from typing import AsyncIterable, Awaitable
@@ -26,7 +28,7 @@ app.add_middleware(
 
 
 class CreateQuery(BaseModel):
-    message: str
+    message: list
 
 async def send_message(message: str) -> AsyncIterable[str]:
     callback = AsyncIteratorCallbackHandler()
@@ -58,8 +60,18 @@ async def send_message(message: str) -> AsyncIterable[str]:
 
     await task
 
+'''
 @app.post("/api/query")
 def stream(body: CreateQuery):
     return StreamingResponse(
         send_message(body.message), media_type="text/event-stream"
     )
+'''
+    
+
+@app.post("/api/query")
+async def query(request: CreateQuery):
+    #print(request)
+    response = gptPipeline(request.message)
+
+    return {"message": response}

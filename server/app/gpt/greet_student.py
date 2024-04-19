@@ -11,7 +11,6 @@ import vecs
 from vecs.adapter import Adapter, ParagraphChunker, TextEmbedding
 import tiktoken
 
-from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_community.document_loaders import TextLoader
 from langchain_core.documents import Document
@@ -41,8 +40,47 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from sqlalchemy import URL
 from langchain_community.agent_toolkits import create_sql_agent
+from langchain_openai import OpenAIEmbeddings
 
 
+def getVectorizedDataV2(queryToMatch):
+    load_dotenv()
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL")
+    SUPABASE_KEY: str = os.getenv("SUPABASE_KEY")
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+    embeddings_model = OpenAIEmbeddings()
+    embedded_query = embeddings_model.embed_query(queryToMatch)
+
+    k=10
+    #filter=None
+    threshold = 0
+
+    response = supabase.rpc('match_documents', {'query_embedding': embedded_query, 'match_count': k}).execute()
+
+    #print(response.data[0]["content"])
+
+    documentString = ""
+    for doc in response.data:
+        #print(doc)
+        documentString = documentString + "Website chunk "+ (doc["url"])+" --- " + (doc["content"]) + " --- "
+
+
+    embeddings = OpenAIEmbeddings()
+
+    llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
+    output_parser = StrOutputParser()
+    prompt = ChatPromptTemplate.from_messages([
+        #("system", "You are a bot designed to parse information from several chunks of text from websites, giving an answer to a given question or statement. You must only use information from the chunks themselves and not come up with any information on your own. If the answer isn't found within the chunks, reply with 'Sorry, this is outside the scope of my information' rather than making up an answer."),
+        ("system", "Parse information from several chunks of text from websites to answer a question or statement. Only use information from the chunks themselves and not come up with any information on your own. If the answer isn't found within the chunks, reply with '---' rather than making up an answer. Make sure to include all relevant information as well as the urls of the chunks which provided the key information."),
+        ("user", "{input}")
+    ])
+    chain = prompt | llm | output_parser
+
+    return(chain.invoke({"input": "Question: "+queryToMatch+" Information: "+documentString}))
+
+#print(getVectorizedDataV2("where can i go for a night out at the uni?"))
+    
 def getVectorizedData(queryToMatch):
     load_dotenv()
 
@@ -68,7 +106,7 @@ def getVectorizedData(queryToMatch):
     #    print(f"{doc}\n")
     documentString = ""
     for doc in matched_docs:
-        print(doc)
+        #print(doc)
         documentString = documentString + "Website chunk --- " + (doc[0].page_content) + " --- "
 
 
@@ -188,7 +226,7 @@ def getNonVectorizedData(message):
 
     DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
 
-    If the question does not seem related to the database, just return "I don't know" as the answer.
+    If the question does not seem related to the database, just return "Sorry, I dont know the answer to this." as the answer.
 
     Here are some examples of user inputs and their corresponding SQL queries:"""
 
@@ -218,7 +256,7 @@ def getNonVectorizedData(message):
             "agent_scratchpad": [],
         }
     )
-    print(prompt_val.to_string())
+    #print(prompt_val.to_string())
 
     agent = create_sql_agent(
         llm=llm,
@@ -268,6 +306,8 @@ def getNonVectorizedData(message):
 
     If you need to filter on a proper noun, you must ALWAYS first look up the filter value using the "search_proper_nouns" tool! 
 
+    If the question does not seem related to the database, just return 'Sorry, I dont know the answer to this.' as the answer.
+
     You have access to the following tables: {table_names}"""
 
     prompt = ChatPromptTemplate.from_messages(
@@ -283,10 +323,10 @@ def getNonVectorizedData(message):
     )
 
     response = agent.invoke({"input": message})
-    return response   
+    return response['output']   
+#print(getNonVectorizedData("who is the head of the uni?"))
 
-
-def beautify(messageToSimplify):
+def checkup(messageToCheck, simplifiedRequest):
     load_dotenv()
     embeddings = OpenAIEmbeddings()
     #print(messageHistory)
@@ -294,12 +334,30 @@ def beautify(messageToSimplify):
     llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a bot designed to simplify a given piece of data into a more readable form if possible. If there is duplicate information, you should remove it. You must only use information from the messages themselves and not come up with any information on your own."),
-        ("user", "{input}")
+        ("system", "Check whether a given answer seems to fit the question: {messageToCheck} . If it does, respond with exactly the answer, otherwise respond with 'Sorry, I dont know the answer to this.'."),
+        ("user", "{simplifiedRequest}")
     ])
     chain = prompt | llm | output_parser
 
-    return(chain.invoke({"input": messageToSimplify}))
+    return(chain.invoke({"messageToCheck": messageToCheck, "simplifiedRequest":simplifiedRequest}))
+#print(checkup("who is the head of the uni?", "micheal mannings"))
+
+def beautify(messageToSimplify, question):
+    load_dotenv()
+    embeddings = OpenAIEmbeddings()
+    #print(messageHistory)
+
+    llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
+    output_parser = StrOutputParser()
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a bot designed to format a given answer to a question into a more readable form. Make sure to include all relevant information, including urls under 'sources'. If there is duplicate information, you should remove it. If the answer refers to not knowing the answer but also gives an answer, remove the part about not knowing the answer. You must only use information from the messages themselves and not come up with any information on your own."),
+        ("user", "Question: {question}. Answer: {input}")
+    ])
+    chain = prompt | llm | output_parser
+
+    return(chain.invoke({"input": messageToSimplify, "question": question}))
+
+#print(beautify("who is the head of the uni?", "micheal mannings i dont know the answer"))
 
 # 1 - convert string of messages into final (last) request
 # 2 - determine which servers need to be accessed in independent functions, returning data to this function
@@ -309,13 +367,13 @@ def beautify(messageToSimplify):
 def gptPipeline(message):
     load_dotenv()
     simplifiedRequest = simplifyMessageHistory(message)
-    #print(simplifiedRequest)
-    vectorizedReturn = getVectorizedData(simplifiedRequest)
-    #print(vectorizedReturn)
+    print(simplifiedRequest)
+    vectorizedReturn = getVectorizedDataV2(simplifiedRequest)
+    print(vectorizedReturn)
     nonVectorizedReturn = getNonVectorizedData(simplifiedRequest)
-    #if ((vectorizedReturn =! False) and (nonVectorizedReturn =! False)):
-    #    return merge(beautify(vectorizedReturn), beautify(nonVectorizedReturn))
-    responseToUser = beautify(vectorizedReturn)
+    print(nonVectorizedReturn)
+    #fullReturn = checkup(vectorizedReturn + nonVectorizedReturn, simplifiedRequest)
+    responseToUser = beautify(vectorizedReturn + nonVectorizedReturn, simplifiedRequest)
     #print(responseToUser)
     return responseToUser
 
@@ -326,10 +384,10 @@ def gptPipeline(message):
 #make it so that the url of the ource website is referenced after a piece of the the response it created
 #to do this, you'll have to update the search function to also get the url and return it to documents. Add it to the end of each string before --- website chunk --- 
 
-#question = "what sports events are happening in july?"
+#question = "does the uni offer medical studies?"
 #docsToGive = (getMatchedVector(question))
 #print(doGPTRequest(question, docsToGive))
 #print(generateMYSQLReq(question))
 #print(getVectorizedData("Retrieve every module in business"))
-print(gptPipeline('{ "Messages":["Hello! How can I help?", "What modules are available for computer science?", "I dont know the answer to that.", "what module is CMD213"]}'))
+print(gptPipeline('{"Message":["Hello! How can I help?", "What modules are available for computer science?", "I dont know the answer to that.", "what are some of the societies on offer?"]}'))
 
