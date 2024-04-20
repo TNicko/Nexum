@@ -99,7 +99,6 @@ def getNonVectorizedData(message):
         agent_type="openai-tools",
     )
 
-
     def query_as_list(db, query):
         res = db.run(query)
         res = [el for sub in ast.literal_eval(res) for el in sub if el]

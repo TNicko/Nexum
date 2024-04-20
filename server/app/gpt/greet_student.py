@@ -1,47 +1,12 @@
-from openai import OpenAI
-import json
-from langchain_core.output_parsers import StrOutputParser
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_openai import OpenAIEmbeddings
 import os
 from app.gpt.sql_query import getNonVectorizedData  
-
-from supabase import create_client, Client
-
-# import vecs
-# from vecs.adapter import Adapter, ParagraphChunker, TextEmbedding
-import tiktoken
-
-from langchain_community.vectorstores import SupabaseVectorStore
-from langchain_community.document_loaders import TextLoader
-from langchain_core.documents import Document
-
-from dotenv import load_dotenv
-
-from langchain.chains.query_constructor.base import AttributeInfo
-from langchain.retrievers.self_query.base import SelfQueryRetriever
-from langchain_openai import OpenAI
-
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate,
-)
-
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_openai import ChatOpenAI
-
-from operator import itemgetter
-from langchain_community.utilities import SQLDatabase
-from langchain.chains import create_sql_query_chain
-from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
-from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
-from sqlalchemy import URL
-from langchain_community.agent_toolkits import create_sql_agent
-from langchain_openai import OpenAIEmbeddings
+from supabase import create_client, Client
+from langchain_community.vectorstores import SupabaseVectorStore
+from langchain.prompts.chat import ChatPromptTemplate
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
 
 load_dotenv()
 
