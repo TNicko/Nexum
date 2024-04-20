@@ -96,12 +96,12 @@ function App() {
       window.scrollTo(0, document.documentElement.scrollHeight);
     }, 500);
 
-    fetchEventSource("http://localhost:8000/api/query", {
+    fetchEventSource("http://127.0.0.1:8000/api/query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message: value }),
+			body: JSON.stringify({ chat: bubbles, message: value }),
       signal: newAbortController.signal,
       onopen: async (res) => {
         if (res.ok && res.status === 200) {

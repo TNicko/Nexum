@@ -7,13 +7,10 @@ from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage
 from pydantic import BaseModel
 from app.db.supabase import create_supabase_client
-
-from app.gpt.greet_student import gptPipeline
-
-app = FastAPI()
-
+from app.gpt.pipeline import gptPipeline
 from typing import AsyncIterable, Awaitable
 
+app = FastAPI()
 supabase = create_supabase_client()
 
 origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://0.0.0.0:5173"]
@@ -26,9 +23,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class CreateQuery(BaseModel):
-    message: list
+    message: str
+    chat: list
 
 async def send_message(message: str) -> AsyncIterable[str]:
     callback = AsyncIteratorCallbackHandler()
@@ -60,18 +57,14 @@ async def send_message(message: str) -> AsyncIterable[str]:
 
     await task
 
-'''
-@app.post("/api/query")
-def stream(body: CreateQuery):
-    return StreamingResponse(
-        send_message(body.message), media_type="text/event-stream"
-    )
-'''
-    
-
 @app.post("/api/query")
 async def query(request: CreateQuery):
-    #print(request)
-    response = gptPipeline(request.message)
-
-    return {"message": response}
+    print(request)
+    messages = [message["text"] for message in request.chat]
+    messages.append(request.message)
+    response = gptPipeline(supabase, messages)
+    print(response)
+    return StreamingResponse(
+        send_message(request.message), media_type="text/event-stream"
+    )
+    
