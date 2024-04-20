@@ -103,18 +103,6 @@ def generateMYSQLReq(toMakeSQL):
     return(chain.invoke({"input": toMakeSQL}))
 
 
-def checkup(messageToCheck, simplifiedRequest):
-
-    llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
-    output_parser = StrOutputParser()
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "Check whether a given answer seems to fit the question: {messageToCheck} . If it does, respond with exactly the answer, otherwise respond with 'Sorry, I dont know the answer to this.'."),
-        ("user", "{simplifiedRequest}")
-    ])
-    chain = prompt | llm | output_parser
-
-    return(chain.invoke({"messageToCheck": messageToCheck, "simplifiedRequest":simplifiedRequest}))
-
 def beautify(messageToSimplify, question):
 
     llm = ChatOpenAI(openai_api_key="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", temperature=0, model_name="gpt-3.5-turbo-0125")
