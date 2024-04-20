@@ -79,7 +79,7 @@ class SQLQueryAgent:
             extra_tools=[self.retriever_tool],
             prompt=self.full_prompt,
             agent_type="openai-tools",
-            verbose=True,
+            verbose=False,
         )
 
     def _set_retriever(self):

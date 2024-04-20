@@ -1,8 +1,12 @@
+import asyncio
+from typing import Awaitable
 from app.gpt.sql_query import SQLQueryAgent
+from langchain.schema import HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.output_parsers import StrOutputParser
+from langchain.callbacks import AsyncIteratorCallbackHandler
 from app.db.supabase import create_supabase_client
 import app.gpt.system_prompts as sp
 from dotenv import load_dotenv
@@ -11,12 +15,50 @@ load_dotenv()
 
 
 class GPTPipeline:
-    def __init__(self, model_name: str = "gpt-3.5-turbo-0125"):
+    def __init__(self, model_name: str = "gpt-3.5-turbo-0125", streaming: bool = False):
         self.supabase = create_supabase_client()
+        self.callback = AsyncIteratorCallbackHandler()
         self.llm = ChatOpenAI(temperature=0, model_name=model_name)
+        self.stream_llm = ChatOpenAI(temperature=0, model_name=model_name, streaming=streaming, callbacks=[self.callback])
         self.output_parser = StrOutputParser()
         self.embeddings = OpenAIEmbeddings()
-        self.sql_agent = SQLQueryAgent(llm=self.llm, embeddings=self.embeddings) 
+        self.sql_agent = SQLQueryAgent(llm=self.llm, embeddings=self.embeddings)
+        self.streaming = streaming
+
+    async def stream_response(self, messages):
+        """ Stream responses from the language model. """
+        prompt = await self._process(messages)
+        model = self.stream_llm
+        async def wrap_done(fn: Awaitable, event: asyncio.Event):
+            try:
+                await fn
+            except Exception as e:
+                print(f"Caught exception: {e}")
+            finally:
+                event.set()
+
+        task = asyncio.create_task(wrap_done(
+            model.agenerate(messages=[[HumanMessage(content=prompt)]]),
+            self.callback.done),
+        )
+
+        async for token in self.callback.aiter():
+            print("Yielding token: ", token)
+            yield f"data: {token}\n\n"
+
+        await task
+
+    async def get_response(self, messages):
+        """ Process the messages and return a single final response. """
+        prompt = await self._process(messages)
+        model = self.llm
+        try:
+            result = await model.invoke(messages=[[HumanMessage(content=prompt)]])
+            return result['choices'][0]['text']  
+        except Exception as e:
+            print(f"Caught exception: {e}")
+            return "An error occurred while processing the request."
+
 
     def _get_embedding_response(self, queryToMatch, k: int = 10):
         embedded_query = self.embeddings.embed_query(queryToMatch)
@@ -55,17 +97,17 @@ class GPTPipeline:
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", sp.BEAUTIFY_PROMPT),
-                ("user", "Question: {query}. Answer: {input}"),
+                ("user", f"Question: {query}. Answer: {message}"),
             ]
         )
-        chain = prompt | self.llm | self.output_parser
-        return chain.invoke({"input": message, "query": query})
+        return prompt.format()
 
-    def process(self, messages):
+    async def _process(self, messages):
         simplified_request = self._simplify_message_history(messages)
         embedding_response = self._get_embedding_response(simplified_request)
         sql_response = self.sql_agent.process(simplified_request)
-        merged_response = self._beautify(
+
+        final_prompt = self._beautify(
             embedding_response + sql_response, simplified_request
         )
-        return merged_response
+        return final_prompt
