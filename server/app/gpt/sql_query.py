@@ -55,7 +55,7 @@ def getNonVectorizedData(message):
         res = [re.sub(r"\b\d+\b", "", string).strip() for string in res]
         return list(set(res))
 
-    ##Change this if needed
+    # Change this if needed
     societies = query_as_list(db, "SELECT Name FROM Societies")
 
     from langchain.agents.agent_toolkits import create_retriever_tool
@@ -108,17 +108,6 @@ def getNonVectorizedData(message):
         ]
     )
 
-    """
-    prompt_val = full_prompt.invoke(
-        {
-            "input": message,
-            "top_k": 5,
-            "dialect": "SQLite",
-            "table_names": "Societies",
-            "agent_scratchpad": [],
-        }
-    )
-    """
     agent = create_sql_agent(
         llm=llm,
         db=db,

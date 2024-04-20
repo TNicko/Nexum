@@ -1,17 +1,15 @@
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Query, UploadFile, Form
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage
 from pydantic import BaseModel
-from app.db.supabase import create_supabase_client
-from app.gpt.pipeline import gptPipeline
+from app.gpt.pipeline import GPTPipeline
 from typing import AsyncIterable, Awaitable
 
 app = FastAPI()
-supabase = create_supabase_client()
 
 origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://0.0.0.0:5173"]
 
@@ -62,7 +60,10 @@ async def query(request: CreateQuery):
     print(request)
     messages = [message["text"] for message in request.chat]
     messages.append(request.message)
-    response = gptPipeline(supabase, messages)
+
+    pipeline = GPTPipeline()
+    response = pipeline.process(messages)
+
     print(response)
     return StreamingResponse(
         send_message(request.message), media_type="text/event-stream"
