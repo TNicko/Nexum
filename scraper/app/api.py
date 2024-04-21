@@ -21,6 +21,6 @@ async def run_events():
     return {"message": "Extracting & Storing Events..."} 
 
 @app.post("/run-societies")
-async def run_events():
-    fetch_and_store_societies.delay()
+async def run_societies():
+    fetch_and_store_societies()
     return {"message": "Extracting & Storing Societes..."} 
