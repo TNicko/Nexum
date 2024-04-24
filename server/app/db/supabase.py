@@ -11,3 +11,6 @@ SUPABASE_KEY: str = os.getenv("SUPABASE_KEY")
 def create_supabase_client():
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
     return supabase
+
+
+

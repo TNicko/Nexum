@@ -1,6 +1,7 @@
 import asyncio
-from typing import Awaitable
-from app.gpt.sql_query import SQLQueryAgent
+import time
+from typing import Any, Awaitable
+from app.gpt.sql_agent import SQLQueryAgent
 from langchain.schema import HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts.chat import ChatPromptTemplate
@@ -10,7 +11,6 @@ from langchain.callbacks import AsyncIteratorCallbackHandler
 from app.db.supabase import create_supabase_client
 import app.gpt.system_prompts as sp
 from dotenv import load_dotenv
-
 load_dotenv()
 
 
@@ -22,7 +22,7 @@ class GPTPipeline:
         self.stream_llm = ChatOpenAI(temperature=0, model_name=model_name, streaming=streaming, callbacks=[self.callback])
         self.output_parser = StrOutputParser()
         self.embeddings = OpenAIEmbeddings()
-        self.sql_agent = SQLQueryAgent(llm=self.llm, embeddings=self.embeddings)
+        self.sql_agent = SQLQueryAgent(llm=self.llm, embeddings=self.embeddings, supabase=self.supabase)
         self.streaming = streaming
 
     async def stream_response(self, messages):
