@@ -1,3 +1,4 @@
+from langchain_openai import OpenAIEmbeddings
 import requests
 import logging
 from celery.utils.log import get_task_logger
@@ -39,11 +40,23 @@ def fetch_and_store_societies():
             }
             for society in societies
         ]
+        
+        embeddings = OpenAIEmbeddings()
+        society_embeddings_data = [
+            {
+                "id": society["id"],
+                "name": society["name"],
+                "name_embedding": embeddings.embed_query(society["name"]) 
+            }
+            for society in societies_data
+        ]
 
         if societies_data:
             supabase.table("societies").upsert(
                 societies_data, on_conflict="id"
             ).execute()
+
+            supabase.table("society_embeddings").upsert(society_embeddings_data).execute()
             logger.info("Successfully upserted societies data.")
 
         else:

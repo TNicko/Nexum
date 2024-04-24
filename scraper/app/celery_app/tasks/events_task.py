@@ -1,3 +1,5 @@
+from langchain_openai import OpenAIEmbeddings
+from pydantic import BaseModel
 import requests
 import logging
 from celery.utils.log import get_task_logger
@@ -7,6 +9,15 @@ from app.db.supabase import create_supabase_client
 
 logger = get_task_logger("events_task")
 logger.setLevel(logging.INFO)
+
+
+def create_event_description(event):
+    """Generates a descriptive string for an event for embedding."""
+    return (
+        f"{event['name']} {event['subtitle']}"
+        f"{event['description']} {event['type']} "
+        f"from {event['start_date']} to {event['end_date']}"
+    )
 
 
 @celery_app.task(name="events")
@@ -41,9 +52,22 @@ def fetch_and_store_events():
             "end_date": event.get("end_date"),
         } for event in events]
         
-        
+
+        embeddings = OpenAIEmbeddings()
+        event_embeddings_data = [
+            {
+                "id": event["id"],
+                "name": event["name"],
+                "embedding": embeddings.embed_query(
+                   create_event_description(event) 
+                ) 
+            }
+            for event in event_data_list
+        ]
+
         # Upsert to insert or update based on the id field
         supabase.table("events").upsert(event_data_list, on_conflict="id").execute()
+        supabase.table("event_embeddings").upsert(event_embeddings_data, on_conflict="id").execute()
         logger.info("Successfully upserted events data.")
     
     except requests.RequestException as e:

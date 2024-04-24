@@ -17,7 +17,7 @@ async def run_spider():
 
 @app.post("/run-events")
 async def run_events():
-    fetch_and_store_events.delay()
+    fetch_and_store_events()
     return {"message": "Extracting & Storing Events..."} 
 
 @app.post("/run-societies")
