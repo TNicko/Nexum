@@ -1,5 +1,4 @@
 from langchain_openai import OpenAIEmbeddings
-from pydantic import BaseModel
 import requests
 import logging
 from celery.utils.log import get_task_logger
@@ -9,6 +8,7 @@ from app.db.supabase import create_supabase_client
 
 logger = get_task_logger("events_task")
 logger.setLevel(logging.INFO)
+
 
 
 def create_event_description(event):
@@ -25,7 +25,7 @@ def fetch_and_store_events():
     logger.info(f"Fetching and storing events...")
     
     supabase = create_supabase_client()
-    url = "https://pluto.sums.su/api/events?perPage=200&sortBy=start_date&futureOrOngoing=1&onlyPremium=1"
+    url = "https://pluto.sums.su/api/events?perPage=200&sortBy=start_date&futureOrOngoing=1"
     headers = {"X-Site-Id": "dEJdtTysQf53J7AMAD9zde"}
 
     try:
