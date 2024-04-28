@@ -10,13 +10,14 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from app.db.supabase import create_supabase_client
 import app.gpt.system_prompts as sp
+from app.utils.time_utils import log_time
 from dotenv import load_dotenv
 load_dotenv()
 
 
 class GPTPipeline:
-    def __init__(self, model_name: str = "gpt-3.5-turbo-0125", streaming: bool = False):
-        self.supabase = create_supabase_client()
+    def __init__(self, model_name: str = "gpt-3.5-turbo-0125", streaming: bool = False, supabase = None):
+        self.supabase = supabase if supabase else create_supabase_client()
         self.callback = AsyncIteratorCallbackHandler()
         self.llm = ChatOpenAI(temperature=0, model_name=model_name)
         self.stream_llm = ChatOpenAI(temperature=0, model_name=model_name, streaming=streaming, callbacks=[self.callback])
@@ -48,13 +49,15 @@ class GPTPipeline:
 
         await task
 
-    async def get_response(self, messages):
+    def get_response(self, messages):
         """ Process the messages and return a single final response. """
-        prompt = await self._process(messages)
+        prompt = self._process(messages)
         model = self.llm
         try:
-            result = await model.invoke(messages=[[HumanMessage(content=prompt)]])
-            return result['choices'][0]['text']  
+            start_time = time.time()
+            result = model.invoke(input=prompt)
+            log_time("Final output generation", start_time)
+            return result
         except Exception as e:
             print(f"Caught exception: {e}")
             return "An error occurred while processing the request."
@@ -86,12 +89,11 @@ class GPTPipeline:
         )
 
     def _simplify_message_history(self, messages):
-        message_history = "---".join(messages)
         prompt = ChatPromptTemplate.from_messages(
             [("system", sp.SIMPLIFY_MSG_PROMPT), ("user", "{input}")]
         )
         chain = prompt | self.llm | self.output_parser
-        return chain.invoke({"input": message_history})
+        return chain.invoke({"input": messages})
 
     def _beautify(self, message, query):
         prompt = ChatPromptTemplate.from_messages(
@@ -102,10 +104,19 @@ class GPTPipeline:
         )
         return prompt.format()
 
-    async def _process(self, messages):
+    def _process(self, messages):
+        simplify_start_time = time.time()
         simplified_request = self._simplify_message_history(messages)
+        log_time("Simplification process", simplify_start_time)
+        print(simplified_request)
+        
+        embed_start_time = time.time()
         embedding_response = self._get_embedding_response(simplified_request)
+        log_time("Embedding response time", embed_start_time)
+        
+        sql_start_time = time.time()
         sql_response = self.sql_agent.process(simplified_request)
+        log_time("SQL agent response time", sql_start_time)
 
         final_prompt = self._beautify(
             embedding_response + sql_response, simplified_request

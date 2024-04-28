@@ -1,8 +1,10 @@
+import time
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel
+from app.db.supabase import create_supabase_client
 from app.gpt.pipeline import GPTPipeline
 from typing import AsyncIterable, Awaitable
 
@@ -31,4 +33,17 @@ async def query(request: CreateQuery):
     return StreamingResponse(
         pipeline.stream_response(messages), media_type="text/event-stream"
     )
-    
+
+supabase = create_supabase_client()
+
+@app.post("/api/test")
+async def test(request: CreateQuery):
+    start_time = time.time()
+    messages = [message["text"] for message in request.chat]
+    messages.append(request.message)
+    pipeline = GPTPipeline(streaming=False, supabase=supabase)
+    response = pipeline.get_response(messages)
+    end_time = time.time()
+    time_taken = end_time - start_time
+
+    return {"answer": response.content, "time": time_taken}

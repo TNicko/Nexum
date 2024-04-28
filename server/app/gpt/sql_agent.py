@@ -112,7 +112,7 @@ class SQLQueryAgent:
             extra_tools=self.tools,
             prompt=self.full_prompt,
             agent_type="openai-tools",
-            verbose=True,
+            verbose=False,
         )
 
     def process(self, message: str):
