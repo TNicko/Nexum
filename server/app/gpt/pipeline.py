@@ -49,13 +49,12 @@ class GPTPipeline:
 
         await task
 
-    def get_response(self, messages):
+    async def get_response(self, messages):
         """ Process the messages and return a single final response. """
-        prompt = self._process(messages)
-        model = self.llm
+        prompt = await self._process(messages)
         try:
             start_time = time.time()
-            result = model.invoke(input=prompt)
+            result = await self.llm.ainvoke(input=prompt)
             log_time("Final output generation", start_time)
             return result
         except Exception as e:
@@ -63,9 +62,9 @@ class GPTPipeline:
             return "An error occurred while processing the request."
 
 
-    def _get_embedding_response(self, queryToMatch, k: int = 10):
-        embedded_query = self.embeddings.embed_query(queryToMatch)
-        response = self.supabase.rpc(
+    async def _get_embedding_response(self, queryToMatch, k: int = 10):
+        embedded_query = await self.embeddings.aembed_query(queryToMatch)
+        response = await self.supabase.rpc(
             "match_documents",
             {"query_embedding": embedded_query, "match_count": k},
         ).execute()
@@ -79,7 +78,7 @@ class GPTPipeline:
         )
         chain = prompt | self.llm | self.output_parser
 
-        return chain.invoke(
+        return await chain.ainvoke(
             {
                 "input": "Question: "
                 + queryToMatch
@@ -88,12 +87,12 @@ class GPTPipeline:
             }
         )
 
-    def _simplify_message_history(self, messages):
+    async def _simplify_message_history(self, messages):
         prompt = ChatPromptTemplate.from_messages(
             [("system", sp.SIMPLIFY_MSG_PROMPT), ("user", "{input}")]
         )
         chain = prompt | self.llm | self.output_parser
-        return chain.invoke({"input": messages})
+        return await chain.ainvoke({"input": messages})
 
     def _beautify(self, message, query):
         prompt = ChatPromptTemplate.from_messages(
@@ -104,22 +103,22 @@ class GPTPipeline:
         )
         return prompt.format()
 
-    def _process(self, messages):
+    async def _process(self, messages):
         simplify_start_time = time.time()
-        simplified_request = self._simplify_message_history(messages)
+        simplified_request = await self._simplify_message_history(messages)
         log_time("Simplification process", simplify_start_time)
         print(simplified_request)
         
         embed_start_time = time.time()
-        embedding_response = self._get_embedding_response(simplified_request)
+        embedding_response = await self._get_embedding_response(simplified_request)
         log_time("Embedding response time", embed_start_time)
         
         sql_start_time = time.time()
-        sql_response = self.sql_agent.process(simplified_request)
+        await self.sql_agent.initialise()
+        sql_response = await self.sql_agent.process(simplified_request)
         log_time("SQL agent response time", sql_start_time)
 
         final_prompt = self._beautify(
-            embedding_response + sql_response, simplified_request
+            sql_response + '\n' + embedding_response, simplified_request
         )
-        print(final_prompt)
         return final_prompt

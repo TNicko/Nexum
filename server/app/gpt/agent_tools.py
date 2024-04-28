@@ -1,5 +1,11 @@
+from typing import Optional
+
 from langchain.tools import BaseTool
 from langchain.pydantic_v1 import Extra
+from langchain_core.callbacks import (
+    AsyncCallbackManagerForToolRun,
+    CallbackManagerForToolRun,
+)
 
 class SocietyEmbeddingTool(BaseTool):
     name = "SocietyEmbeddingTool"
@@ -10,29 +16,58 @@ class SocietyEmbeddingTool(BaseTool):
         The input is an approximate spelling of the proper noun.
         Output is a list of the most relevant societies based on the input.
     """
+
     class Config:
         extra = Extra.allow
-        
+
     def __init__(self, supabase, embeddings):
         super().__init__(supabase=supabase, embeddings=embeddings)
         self.supabase = supabase
         self.embeddings = embeddings
-    
-    def _run(self, society_name: str):
-        k = 5
+        self.k = 5
+
+    def _run(
+        self,
+        society_name: str,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
+    ):
         embedded_query = self.embeddings.embed_query(society_name)
         response = self.supabase.rpc(
             "match_societies",
-            {"query_embedding": embedded_query, "match_count": k},
+            {"query_embedding": embedded_query, "match_count": self.k},
         ).execute()
-        
-        ids = [soc['id'] for soc in response.data]
-        
-        response = self.supabase.table("societies").select('*').in_('id', ids).execute()
+
+        ids = [soc["id"] for soc in response.data]
+
+        response = (
+            self.supabase.table("societies")
+            .select("*")
+            .in_("id", ids)
+            .execute()
+        )
         return response.data
-    
-    def _arun(self):
-        raise NotImplementedError("This tool does not support async.")
+
+    async def _arun(
+        self,
+        society_name: str,
+        run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
+    ):
+        embedded_query = await self.embeddings.embed_query(society_name)
+        response = await self.supabase.rpc(
+            "match_societies",
+            {"query_embedding": embedded_query, "match_count": self.k},
+        ).execute()
+
+        ids = [soc["id"] for soc in response.data]
+
+        response = (
+            await self.supabase.table("societies")
+            .select("*")
+            .in_("id", ids)
+            .execute()
+        )
+        return response.data
+
 
 class EventEmbeddingTool(BaseTool):
     name = "EventEmbeddingTool"
@@ -46,29 +81,50 @@ class EventEmbeddingTool(BaseTool):
         The input is relevant text to do with the event from the user's query. 
         Output is a list of the most relevant events based on the input.
     """
+
     class Config:
         extra = Extra.allow
-        
+
     def __init__(self, supabase, embeddings):
         super().__init__(supabase=supabase, embeddings=embeddings)
         self.supabase = supabase
         self.embeddings = embeddings
-    
-    def _run(self, event_query: str):
-        k = 10
+        self.k = 10
+
+    def _run(
+        self,
+        event_query: str,
+        run_manager: Optional[CallbackManagerForToolRun] = None,
+    ):
         embedded_query = self.embeddings.embed_query(event_query)
         response = self.supabase.rpc(
             "match_events",
-            {"query_embedding": embedded_query, "match_count": k},
+            {"query_embedding": embedded_query, "match_count": self.k},
         ).execute()
-        
-        ids = [event['id'] for event in response.data]
-        
-        response = self.supabase.table("events").select('*').in_('id', ids).execute()
+
+        ids = [event["id"] for event in response.data]
+        response = (
+            self.supabase.table("events").select("*").in_("id", ids).execute()
+        )
         return response.data
-    
-    def _arun(self):
-        raise NotImplementedError("This tool does not support async.")
 
+    async def _arun(
+        self,
+        event_query: str,
+        run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
+    ):
+        embedded_query = await self.embeddings.embed_query(event_query)
+        response = await self.supabase.rpc(
+            "match_events",
+            {"query_embedding": embedded_query, "match_count": self.k},
+        ).execute()
 
+        ids = [event["id"] for event in response.data]
 
+        response = (
+            await self.supabase.table("events")
+            .select("*")
+            .in_("id", ids)
+            .execute()
+        )
+        return response.data.lol

@@ -34,15 +34,15 @@ async def query(request: CreateQuery):
         pipeline.stream_response(messages), media_type="text/event-stream"
     )
 
-supabase = create_supabase_client()
 
 @app.post("/api/test")
 async def test(request: CreateQuery):
+    supabase = await create_supabase_client()
     start_time = time.time()
     messages = [message["text"] for message in request.chat]
     messages.append(request.message)
     pipeline = GPTPipeline(streaming=False, supabase=supabase)
-    response = pipeline.get_response(messages)
+    response = await pipeline.get_response(messages)
     end_time = time.time()
     time_taken = end_time - start_time
 
