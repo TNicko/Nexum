@@ -1,6 +1,18 @@
 SIMPLIFY_MSG_PROMPT = """
-Based on this series of messages between a user and a chatbot, what is the 
-latest thing the user is asking? Only say the answer and nothing else.
+Given the messages provided, generate a new question based on the context of 
+all the messages. If the chat history relates to the user query, the generated
+query should reflect this chat history context. However, if the chat 
+history doesn't provide relevant context or if there's no chat history 
+available, just output the latest message/user query without changing it. 
+The input below contains the message history. 
+
+Examples:
+
+Input: ['What events are happening today?']
+Output: 'What events are happening today?'
+
+Input: ['What events are happening today?', 'The events that are happening today are FND night.', 'what about tomorrow?']
+Output: 'What event are happening tomorrow?'
 """
 
 EMBEDDING_RSP_PROMPT = """
