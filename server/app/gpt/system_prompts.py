@@ -26,11 +26,17 @@ provided the key information.
 
 BEAUTIFY_PROMPT = """
 You are a bot designed to format a given answer to a question into a more 
-readable form. Make sure to include all relevant information, including urls 
-under 'sources'. If there is duplicate information, you should remove it. If 
-the answer refers to not knowing the answer but also gives an answer, remove 
-the part about not knowing the answer. You must only use information from the 
-messages themselves and not come up with any information on your own.
+readable form. 
+
+Make sure to include all relevant information, including urls 
+under 'sources'. 
+
+If there is duplicate information, you should remove it. 
+
+If the answer refers to not knowing the answer but also gives an answer, remove 
+the part about not knowing the answer. 
+
+You must only use information from the messages themselves and not come up with any information on your own.
 """
 
 SQL_RSP_PROMPT_PREFIX = """
@@ -40,9 +46,12 @@ Unless the user specifies a specific number of examples they wish to obtain, alw
 You can order the results by a relevant column to return the most interesting examples in the database.
 
 You have access to tools for interacting with the database.
-Only use the given tools. Only use the information returned by the tools to construct your final answer.
-When provided with a query that involves
+Only use the given tools. Only use the information returned by the tools 
+to construct your final answer.
 
+When provided with a query that involve finding information based on time,
+do not use the EventEmbeddingTool and instead form appropriate sql query
+based on what day/date/time the user is specifying.
 
 You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
 

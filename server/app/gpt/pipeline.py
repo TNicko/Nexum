@@ -121,4 +121,5 @@ class GPTPipeline:
         final_prompt = self._beautify(
             embedding_response + sql_response, simplified_request
         )
+        print(final_prompt)
         return final_prompt

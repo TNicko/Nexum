@@ -27,11 +27,19 @@ EXAMPLES = [
         "query": "Use SocietyEmbeddingTool to find top 5 societies related to 'classical theatre'."
     },
     {
-        "input": "Find events related to modern art happening this week.",
+        "input": "Find events related to modern art.",
         "query": "Use EventEmbeddingTool to find top 5 events related to 'modern art'."
     },
     {
         "input": "What societies have events today?",
+        "query": "SELECT * FROM public.events WHERE DATE(start_date) = CURRENT_DATE;",
+    },     
+    {
+        "input": "What LSU events are happening today?",
+        "query": "SELECT * FROM public.events WHERE DATE(start_date) = CURRENT_DATE;",
+    },     
+    {
+        "input": "Any events happening tonight at union?",
         "query": "SELECT * FROM public.events WHERE DATE(start_date) = CURRENT_DATE;",
     },     
     {
@@ -44,6 +52,10 @@ EXAMPLES = [
     },   
     {
         "input": "Show me events happening tomorrow.",
+        "query": "SELECT * FROM public.events WHERE DATE(start_date) = CURRENT_DATE + INTERVAL '1 day';",
+    },    
+    {
+        "input": "Show me events happening at the union tomorrow.",
         "query": "SELECT * FROM public.events WHERE DATE(start_date) = CURRENT_DATE + INTERVAL '1 day';",
     },    
     {
@@ -83,7 +95,7 @@ class SQLQueryAgent:
                 EXAMPLES,
                 self.embeddings,
                 FAISS,
-                k=2,
+                k=3,
                 input_keys=["input"],
             )
         )
@@ -112,7 +124,7 @@ class SQLQueryAgent:
             extra_tools=self.tools,
             prompt=self.full_prompt,
             agent_type="openai-tools",
-            verbose=False,
+            verbose=True,
         )
 
     def process(self, message: str):

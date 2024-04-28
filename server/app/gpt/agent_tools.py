@@ -37,7 +37,10 @@ class SocietyEmbeddingTool(BaseTool):
 class EventEmbeddingTool(BaseTool):
     name = "EventEmbeddingTool"
     description = """
-        Use this tool to look up events to filter on. 
+        This tool should be used when the user is asking about events and specifically
+        event names or information which should be filtered on.
+        Specifically, events relating to Loughborough university, 
+        the student union, the union, and LSU. Use this tool to look up events to filter on. 
         If you want to query by Event name use this tool to perform a semantic search to 
         retrieive the most relevant societies names and associated data on these societies.
         The input is relevant text to do with the event from the user's query. 
@@ -52,7 +55,7 @@ class EventEmbeddingTool(BaseTool):
         self.embeddings = embeddings
     
     def _run(self, event_query: str):
-        k = 5
+        k = 10
         embedded_query = self.embeddings.embed_query(event_query)
         response = self.supabase.rpc(
             "match_events",
