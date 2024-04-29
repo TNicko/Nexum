@@ -7,7 +7,7 @@ logger = setup_colored_logger("time")
 logger.propagate = False
 
 LOG_FILE_PATH = os.path.join("logs", "time_logs.txt")
-IS_FILE = True
+IS_FILE = False
 
 def log_time(action: str, start_time: Union[float, int], decimal_places: int = 5, output_to_file: bool = IS_FILE) -> None:
     duration = round(time.time() - start_time, decimal_places)
