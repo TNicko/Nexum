@@ -105,9 +105,9 @@ function App() {
 			body: JSON.stringify({ chat: bubbles, message: value }),
       signal: newAbortController.signal,
       onopen: async (res) => {
+				isFirstOctet = true
         if (res.ok && res.status === 200) {
           console.log("Connection made ", res);
-					isFirstOctet = true
           // Create bubble for AI response
           setBubbles((oldBoxes) => [
             ...(oldBoxes ?? []),
@@ -146,8 +146,6 @@ function App() {
         });
       },
       onclose() {
-				isFirstOctet = true
-				console.log(bubbles)
         console.log("Connection closed by the server");
         setIsSubmitDisabled(false);
       },

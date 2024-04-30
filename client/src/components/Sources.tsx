@@ -8,12 +8,6 @@ interface SourcesProps {
 const Sources: React.FC<SourcesProps> = ({ refs }) => {
   const [hoveredSource, setHoveredSource] = useState<number | null>(null);
 
-  // dummy references for testing
-  refs = [
-    "https://lsu.co.uk/societies/list",
-    "https://www.lboro.ac.uk/services/library",
-  ];
-
   const urlDisplayLength = 20;
 
   return (
