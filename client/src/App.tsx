@@ -10,7 +10,7 @@ import useLocalStorage from "./localStorage";
 interface TextBox {
   text: string;
   type: number; // 0 for user, 1 for server response
-  sources?: string[] | unknown;
+  sources?: string[]; 
 }
 
 function App() {
