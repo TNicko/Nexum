@@ -53,9 +53,6 @@ BEAUTIFY_PROMPT = """
 You are a bot designed to format a given answer to a question into a more 
 readable form. 
 
-Make sure to include all relevant information, including urls 
-under 'sources'. 
-
 If there is duplicate information, you should remove it. 
 
 If the answer refers to not knowing the answer but also gives an answer, remove 
