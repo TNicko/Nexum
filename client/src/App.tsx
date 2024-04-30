@@ -85,6 +85,7 @@ function App() {
 
   const handleButtonClick = async (value: string) => {
     setIsSubmitDisabled(true);
+		isFirstOctet = true
 
     const newAbortController = new AbortController();
     setAbortController(newAbortController);
@@ -105,7 +106,6 @@ function App() {
 			body: JSON.stringify({ chat: bubbles, message: value }),
       signal: newAbortController.signal,
       onopen: async (res) => {
-				isFirstOctet = true
         if (res.ok && res.status === 200) {
           console.log("Connection made ", res);
           // Create bubble for AI response
