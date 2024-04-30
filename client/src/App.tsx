@@ -10,7 +10,7 @@ import useLocalStorage from "./localStorage";
 interface TextBox {
   text: string;
   type: number; // 0 for user, 1 for server response
-  sources: string;
+  sources?: string[] | unknown;
 }
 
 function App() {
@@ -22,6 +22,7 @@ function App() {
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const [userHasScrolledUp, setUserHasScrolledUp] = useState(false);
   const bubbleEl = useRef<HTMLDivElement>(null);
+	let isFirstOctet = true
 
   const checkIsAtBottom = useCallback(() => {
     const isAtBottom =
@@ -106,10 +107,11 @@ function App() {
       onopen: async (res) => {
         if (res.ok && res.status === 200) {
           console.log("Connection made ", res);
+					isFirstOctet = true
           // Create bubble for AI response
           setBubbles((oldBoxes) => [
             ...(oldBoxes ?? []),
-            { text: "", type: 1 },
+            { text: "", type: 1, sources: []},
           ]);
         } else if (
           res.status >= 400 &&
@@ -122,28 +124,29 @@ function App() {
       onmessage(event) {
         setBubbles((currentBubbles) => {
           let newBubbles = currentBubbles ? [...currentBubbles] : [];
-          if (newBubbles.length > 0) {
-            // Assuming the last bubble is always the AI response to update
-            let lastIndex = newBubbles.length - 1;
-            if ("sources" in event){
-              newBubbles[lastIndex] = {
-                ...newBubbles[lastIndex],
-                text: newBubbles[lastIndex].text + event.data,
-                sources: event.sources
-              };
-            }
-            else{
-              newBubbles[lastIndex] = {
-                ...newBubbles[lastIndex],
-                text: newBubbles[lastIndex].text + event.data,
-                sources: newBubbles[lastIndex].sources
-              };
-            }
+					if (newBubbles.length > 0) {
+						// Assuming the last bubble is always the AI response to update
+						console.log(event)
+						let lastIndex = newBubbles.length - 1;
+						if (isFirstOctet) {
+							console.log("isFirst: ", event.data )
+							newBubbles[lastIndex] = {
+								...newBubbles[lastIndex],
+								sources: [event.data],
+							}
+							isFirstOctet = false
+						} else {
+							newBubbles[lastIndex] = {
+								...newBubbles[lastIndex],
+								text: newBubbles[lastIndex].text + event.data,
+							};
+						}
           }
           return newBubbles;
         });
       },
       onclose() {
+				console.log(bubbles)
         console.log("Connection closed by the server");
         setIsSubmitDisabled(false);
       },

@@ -36,7 +36,7 @@ class GPTPipeline:
         relevant_urls_new = f"[{relevant_urls_new}]"
         #print(prompt)
         print(relevant_urls_new)
-        yield f"sources: {relevant_urls_new}\n\n"
+        yield f"data: {relevant_urls_new}\n\n"
         model = self.stream_llm
         async def wrap_done(fn: Awaitable, event: asyncio.Event):
             try:
