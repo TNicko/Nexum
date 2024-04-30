@@ -27,9 +27,10 @@ class CreateQuery(BaseModel):
 
 @app.post("/api/query")
 async def query(request: CreateQuery):
+    supabase = await create_supabase_client()
     messages = [message["text"] for message in request.chat]
     messages.append(request.message)
-    pipeline = GPTPipeline(streaming=True)
+    pipeline = GPTPipeline(streaming=True, supabase=supabase)
     return StreamingResponse(
         pipeline.stream_response(messages), media_type="text/event-stream"
     )
