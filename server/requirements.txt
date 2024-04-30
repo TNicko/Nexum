@@ -66,6 +66,7 @@ tomlkit==0.12.4
 tqdm==4.66.2
 typing-inspect==0.9.0
 typing_extensions==4.9.0
+urlextract==1.9.0
 urllib3==2.2.0
 uvicorn==0.27.1
 wcwidth==0.2.13

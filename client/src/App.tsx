@@ -10,7 +10,7 @@ import useLocalStorage from "./localStorage";
 interface TextBox {
   text: string;
   type: number; // 0 for user, 1 for server response
-  sources?: string[];
+  sources: string;
 }
 
 function App() {
@@ -125,10 +125,20 @@ function App() {
           if (newBubbles.length > 0) {
             // Assuming the last bubble is always the AI response to update
             let lastIndex = newBubbles.length - 1;
-            newBubbles[lastIndex] = {
-              ...newBubbles[lastIndex],
-              text: newBubbles[lastIndex].text + event.data,
-            };
+            if ("sources" in event){
+              newBubbles[lastIndex] = {
+                ...newBubbles[lastIndex],
+                text: newBubbles[lastIndex].text + event.data,
+                sources: event.sources
+              };
+            }
+            else{
+              newBubbles[lastIndex] = {
+                ...newBubbles[lastIndex],
+                text: newBubbles[lastIndex].text + event.data,
+                sources: newBubbles[lastIndex].sources
+              };
+            }
           }
           return newBubbles;
         });

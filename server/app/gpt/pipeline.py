@@ -12,6 +12,8 @@ from app.db.supabase import create_supabase_client
 import app.gpt.system_prompts as sp
 from app.utils.time_utils import log_time
 from dotenv import load_dotenv
+from datetime import date 
+from urlextract import URLExtract
 load_dotenv()
 
 
@@ -28,7 +30,13 @@ class GPTPipeline:
 
     async def stream_response(self, messages):
         """ Stream responses from the language model. """
-        prompt = await self._process(messages)
+        prompt, relevant_urls = await self._process(messages)
+        relevant_urls_new =  [f"'{url}'" for url in relevant_urls]
+        relevant_urls_new = ', '.join(relevant_urls_new)
+        relevant_urls_new = f"[{relevant_urls_new}]"
+        #print(prompt)
+        print(relevant_urls_new)
+        yield f"sources: {relevant_urls_new}\n\n"
         model = self.stream_llm
         async def wrap_done(fn: Awaitable, event: asyncio.Event):
             try:
@@ -88,11 +96,25 @@ class GPTPipeline:
         )
 
     async def _simplify_message_history(self, messages):
+        todays_date = date.today() 
         prompt = ChatPromptTemplate.from_messages(
             [("system", sp.SIMPLIFY_MSG_PROMPT), ("user", "{input}")]
         )
         chain = prompt | self.llm | self.output_parser
         return await chain.ainvoke({"input": messages})
+    
+    async def _get_url_seperated(self, message):
+        urlextractor = URLExtract()
+        urls_found = urlextractor.find_urls(message)
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", sp.REMOVE_URLS_PROMPT), 
+                ("user", "{input}"),
+            ]
+        )
+        chain = prompt | self.llm | self.output_parser
+        msg_to_return =  chain.invoke({"input": message})
+        return (msg_to_return, urls_found)
 
     def _beautify(self, message, query):
         prompt = ChatPromptTemplate.from_messages(
@@ -112,13 +134,22 @@ class GPTPipeline:
         embed_start_time = time.time()
         embedding_response = await self._get_embedding_response(simplified_request)
         log_time("Embedding response time", embed_start_time)
+        print(embedding_response)
+
+        embed_no_url_start_time = time.time()
+        no_url_embedding_response, relevant_urls = await self._get_url_seperated(embedding_response)
+        log_time("Embedding remove url response time", embed_no_url_start_time)
+        print(no_url_embedding_response)
+        print("Relevant urls:")
+        print(relevant_urls)
         
         sql_start_time = time.time()
         await self.sql_agent.initialise()
         sql_response = await self.sql_agent.process(simplified_request)
         log_time("SQL agent response time", sql_start_time)
+        print(sql_response)
 
         final_prompt = self._beautify(
-            sql_response + '\n' + embedding_response, simplified_request
+            sql_response + '\n' + no_url_embedding_response, simplified_request
         )
-        return final_prompt
+        return final_prompt, relevant_urls
