@@ -31,7 +31,7 @@ class GPTPipeline:
     async def stream_response(self, messages):
         """ Stream responses from the language model. """
         prompt, relevant_urls = await self._process(messages)
-        relevant_urls_new =  [f"'{url}'" for url in relevant_urls]
+        relevant_urls_new =  [f'"{url}"' for url in relevant_urls]
         relevant_urls_new = ', '.join(relevant_urls_new)
         relevant_urls_new = f"[{relevant_urls_new}]"
         #print(prompt)

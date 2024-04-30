@@ -132,7 +132,7 @@ function App() {
 							console.log("isFirst: ", event.data )
 							newBubbles[lastIndex] = {
 								...newBubbles[lastIndex],
-								sources: [event.data],
+								sources: JSON.parse(event.data),
 							}
 							isFirstOctet = false
 						} else {
@@ -146,6 +146,7 @@ function App() {
         });
       },
       onclose() {
+				isFirstOctet = true
 				console.log(bubbles)
         console.log("Connection closed by the server");
         setIsSubmitDisabled(false);
