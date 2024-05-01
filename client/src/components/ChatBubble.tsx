@@ -4,6 +4,7 @@ import Sources from "./Sources";
 import PersonIcon from "@mui/icons-material/Person";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DoneIcon from "@mui/icons-material/Done";
+import Markdown from 'react-markdown';
 
 interface TextBox {
   text: string;
@@ -58,7 +59,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ bubble }) => {
                 }}
               />
             )}
-            <p style={{ position: "relative", top: "2px" }}>{bubble.text}</p>
+            <Markdown>{bubble.text}</Markdown>
             <div className="bubble-opts" onClick={copyToClipboard}>
               <div className={`bubble-opt copy-opt ${isCopy ? "copied" : ""}`}>
                 {isCopy ? (

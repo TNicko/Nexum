@@ -59,6 +59,8 @@ If the answer refers to not knowing the answer but also gives an answer, remove
 the part about not knowing the answer. 
 
 You must only use information from the messages themselves and not come up with any information on your own.
+
+Make sure to output all your response in Markdown format.
 """
 
 SQL_RSP_PROMPT_PREFIX = """
