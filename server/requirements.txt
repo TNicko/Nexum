@@ -48,6 +48,7 @@ python-dateutil==2.8.2
 python-dotenv==1.0.1
 PyYAML==6.0.1
 questionary==2.0.1
+react-markdown==9.0.0
 realtime==1.0.2
 regex==2023.12.25
 requests==2.31.0
