@@ -13,6 +13,10 @@ interface TextBox {
   sources?: string[]; 
 }
 
+class RetriableError extends Error { }
+class FatalError extends Error { }
+
+
 function App() {
   const [bubbles, setBubbles] = useLocalStorage<TextBox[]>("chatBubbles", []);
   const [introduction, setIntroduction] = useLocalStorage("introduction", true);
@@ -87,7 +91,7 @@ function App() {
     setIsSubmitDisabled(true);
 		isFirstOctet = true
 
-    const newAbortController = AbortSignal.timeout(60000); // 5 seconds
+    const newAbortController = AbortSignal.timeout(120000); // 60 seconds
     setAbortController(newAbortController);
 
     // Add user's message as a new bubble
@@ -119,6 +123,11 @@ function App() {
           res.status !== 429
         ) {
           console.log("Client-side error ", res);
+          throw new Error();
+        }
+        else{
+          console.log("Unknown client error ", res);
+          throw new Error();
         }
       },
       onmessage(event) {
@@ -148,11 +157,13 @@ function App() {
       onclose() {
         console.log("Connection closed by the server");
         setIsSubmitDisabled(false);
+        throw new Error();
       },
       onerror(err) {
         console.log("There was an error from server", err);
         setIsSubmitDisabled(false);
-      },
+        throw new Error();
+      }
     });
 
     setIntroduction(false);

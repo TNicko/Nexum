@@ -35,6 +35,7 @@ class GPTPipeline:
         relevant_urls_new = ', '.join(relevant_urls_new)
         relevant_urls_new = f"[{relevant_urls_new}]"
         #print(prompt)
+        print("relevant urls sent:")
         print(relevant_urls_new)
         yield f"data: {relevant_urls_new}\n\n"
         model = self.stream_llm
