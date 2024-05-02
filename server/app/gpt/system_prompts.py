@@ -38,7 +38,7 @@ https://www.lboro.ac.uk/services/vco/smt/vc-prof-jennings
 
 REMOVE_URLS_PROMPT = """
 You are a bot designed to remove all URLs from a piece of text while maintaining good sentence structure and not removing key information.
-The urls will usually be found under the main chunk of text, in which case no alteration of the main piece of text should be performed.
+The urls will across the of text, and all of them must me removed without removing the key information.
 
 Examples:
 Input : The president of the uni is Professor Nick Jennings. He was previously the Vice-Provost for Research and Enterprise at Imperial College London, the UK Government’s first Chief Scientific Advisor for National Security, and Regius Professor of Computer Science at the University of Southampton.

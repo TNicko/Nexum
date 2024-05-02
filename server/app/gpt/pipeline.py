@@ -136,12 +136,6 @@ class GPTPipeline:
         log_time("Embedding response time", embed_start_time)
         print(embedding_response)
 
-        embed_no_url_start_time = time.time()
-        no_url_embedding_response, relevant_urls = await self._get_url_seperated(embedding_response)
-        log_time("Embedding remove url response time", embed_no_url_start_time)
-        print(no_url_embedding_response)
-        print("Relevant urls:")
-        print(relevant_urls)
         
         sql_start_time = time.time()
         await self.sql_agent.initialise()
@@ -149,7 +143,14 @@ class GPTPipeline:
         log_time("SQL agent response time", sql_start_time)
         print(sql_response)
 
+        no_url_start_time = time.time()
+        no_url_response, relevant_urls = await self._get_url_seperated(sql_response + '\n' + embedding_response)
+        log_time("Embedding remove url response time", no_url_start_time)
+        print(no_url_response)
+        print("Relevant urls:")
+        print(relevant_urls)
+
         final_prompt = self._beautify(
-            sql_response + '\n' + no_url_embedding_response, simplified_request
+            no_url_response, simplified_request
         )
         return final_prompt, relevant_urls
