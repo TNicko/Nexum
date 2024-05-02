@@ -87,7 +87,7 @@ function App() {
     setIsSubmitDisabled(true);
 		isFirstOctet = true
 
-    const newAbortController = new AbortController();
+    const newAbortController = AbortSignal.timeout(60000); // 5 seconds
     setAbortController(newAbortController);
 
     // Add user's message as a new bubble
@@ -104,7 +104,7 @@ function App() {
         "Content-Type": "application/json",
       },
 			body: JSON.stringify({ chat: bubbles, message: value }),
-      signal: newAbortController.signal,
+      signal: newAbortController,
       onopen: async (res) => {
         if (res.ok && res.status === 200) {
           console.log("Connection made ", res);
