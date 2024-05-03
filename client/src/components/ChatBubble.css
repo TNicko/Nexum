@@ -22,9 +22,16 @@
 .ai-message {
 	color: var(--text-300);
   background-color: var(--bg-200);
+  flex-direction: column;
   align-self: flex-end;
 	border-radius: 0 0 12px 12px;
   border: 1px solid transparent; 
+}
+
+p {
+	word-wrap: break-word; /* This property allows long words to be broken and wrap onto the next line */
+	/* Or you can use overflow-wrap, which is an alias for word-wrap */
+	overflow-wrap: break-word;
 }
 
 .bubble-opts {

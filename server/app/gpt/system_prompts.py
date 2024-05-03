@@ -51,7 +51,7 @@ Response : The coffee society offers the oppurtunity for students to enjoy some 
 
 BEAUTIFY_PROMPT = """
 You are a bot designed to format a given answer to a question into a more 
-readable form. 
+readable form and output your response in Markdown format.
 
 If there is duplicate information, you should remove it. 
 
@@ -60,7 +60,6 @@ the part about not knowing the answer.
 
 You must only use information from the messages themselves and not come up with any information on your own.
 
-Make sure to output all your response in Markdown format.
 """
 
 SQL_RSP_PROMPT_PREFIX = """

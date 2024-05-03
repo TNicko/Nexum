@@ -149,6 +149,13 @@ function App() {
 								...newBubbles[lastIndex],
 								text: newBubbles[lastIndex].text + event.data,
 							};
+              if(event.data===""){
+                console.log(event.data);
+                newBubbles[lastIndex] = {
+                  ...newBubbles[lastIndex],
+                  text: newBubbles[lastIndex].text + " \n ",
+                };
+              }
 						}
           }
           return newBubbles;
