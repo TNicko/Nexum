@@ -91,7 +91,7 @@ function App() {
     setIsSubmitDisabled(true);
 		isFirstOctet = true
 
-    const newAbortController = AbortSignal.timeout(120000); // 60 seconds
+    const newAbortController = new AbortController();; // 60 seconds
     setAbortController(newAbortController);
 
     // Add user's message as a new bubble
@@ -108,7 +108,7 @@ function App() {
         "Content-Type": "application/json",
       },
 			body: JSON.stringify({ chat: bubbles, message: value }),
-      signal: newAbortController,
+      signal: newAbortController.signal,
       onopen: async (res) => {
         if (res.ok && res.status === 200) {
           console.log("Connection made ", res);
@@ -125,10 +125,7 @@ function App() {
           console.log("Client-side error ", res);
           throw new Error();
         }
-        else{
-          console.log("Unknown client error ", res);
-          throw new Error();
-        }
+
       },
       onmessage(event) {
         setBubbles((currentBubbles) => {
@@ -169,7 +166,7 @@ function App() {
       onerror(err) {
         console.log("There was an error from server", err);
         setIsSubmitDisabled(false);
-        throw new Error();
+        throw err;
       }
     });
 
