@@ -18,7 +18,7 @@ class WebsiteSpider(scrapy.Spider):
 
     def __init__(
         self,
-        test_mode=True,
+        test_mode=False,
         test_url="https://www.lboro.ac.uk/study/undergraduate/courses/computer-science-bsc/",
         *args,
         **kwargs,
@@ -43,10 +43,14 @@ class WebsiteSpider(scrapy.Spider):
         )
 
     def parse(self, response):
+        logger.info(f"Scraping URL: {response.url}")
+        parse_start_time = time.time()
+
         soup = BeautifulSoup(response.body, "lxml")
         urls = extract_urls_from_html(soup)
         text = extract_text(response)
         file_path = response.url.replace("https://www.lboro.ac.uk", "home")
+        log_time("Parsing url", parse_start_time)
         yield {"url": response.url, "file_path": file_path, "content": text}
 
         # Only follow links if not in test mode

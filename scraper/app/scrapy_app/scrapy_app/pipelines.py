@@ -1,4 +1,5 @@
 import hashlib
+import concurrent.futures
 import time
 from typing import Dict, List, Any 
 from itemadapter import ItemAdapter
@@ -18,8 +19,8 @@ class ScrapyAppPipeline:
     def __init__(self):
         self.supabase = create_supabase_client()
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=100,
+            chunk_size=2000,
+            chunk_overlap=300,
             is_separator_regex=False,
         )
         self.embeddings = OpenAIEmbeddings()
@@ -36,7 +37,7 @@ class ScrapyAppPipeline:
         # that it will ignore updated versions i.e. older versions of the same
         # url that were valid will not be deleted.
         filter = ContentFilter(content)
-        filter.check_min_length(500)
+        filter.check_min_length(2000)
 
         if not filter.validate():
             logger.debug("Content does not meet the criteria.")
@@ -59,7 +60,7 @@ class ScrapyAppPipeline:
         if not page_chunks:
             logger.debug("Page does not exist yet. Uploading page content...")
             
-            documents = self.generate_content_documents(
+            documents = self.agenerate_content_documents(
                 content, url, file_name, content_hash
             )
             self.upsert_documents(documents)
@@ -73,7 +74,7 @@ class ScrapyAppPipeline:
 
             self.delete_documents(url)
 
-            documents = self.generate_content_documents(
+            documents = self.agenerate_content_documents(
                 content, url, file_name, content_hash
             )
             self.upsert_documents(documents)
@@ -122,6 +123,38 @@ class ScrapyAppPipeline:
 
         log_time("Total page documents generation", start_time_overall)
         return documents
+
+
+    def agenerate_content_documents(self, content: str, url: str, file_path: str, content_hash: str):
+        start_time_overall = time.time()
+
+        chunks = self.text_splitter.create_documents([content])
+        documents = []
+        for i, chunk in enumerate(chunks):
+            chunk.metadata = {
+                "file_path": file_path,
+                "chunk": i,
+            }
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(self.process_chunk, chunk) for chunk in chunks]
+            for future in concurrent.futures.as_completed(futures):
+                document = future.result()
+                document["url"] = url
+                document["page_hash"] = content_hash
+                documents.append(future.result())
+
+        log_time(f"Total page documents ({len(chunks)}) generation", start_time_overall)
+        return documents 
+
+    def process_chunk(self, chunk):
+        embedding = self.embeddings.embed_query(chunk.page_content)
+        return {
+            "content": chunk.page_content,
+            "embedding": embedding,
+            "metadata": chunk.metadata,
+            "source": "loughborough-website",
+        }
 
     def upsert_documents(self, documents: List[Dict[str, Any]]):
         insert_start_time = time.time()
