@@ -10,12 +10,9 @@ import useLocalStorage from "./localStorage";
 interface TextBox {
   text: string;
   type: number; // 0 for user, 1 for server response
-  sources?: string[]; 
+  sources?: string[];
+	isStreaming: boolean;
 }
-
-class RetriableError extends Error { }
-class FatalError extends Error { }
-
 
 function App() {
   const [bubbles, setBubbles] = useLocalStorage<TextBox[]>("chatBubbles", []);
@@ -93,7 +90,7 @@ function App() {
     setAbortController(newAbortController);
 
     // Add user's message as a new bubble
-    let newUserTextBox: TextBox = { text: value, type: 0 };
+    let newUserTextBox: TextBox = { text: value, type: 0, isStreaming: false};
     setBubbles((oldBoxes) => [...(oldBoxes ?? []), newUserTextBox]);
 
     setTimeout(function () {
@@ -114,7 +111,7 @@ function App() {
           // Create bubble for AI response
           setBubbles((oldBoxes) => [
             ...(oldBoxes ?? []),
-            { text: "", type: 1, sources: []},
+            { text: "", type: 1, sources: [], isStreaming: true},
           ]);
         } else if (
           res.status >= 400 &&
@@ -135,6 +132,7 @@ function App() {
 						console.log("urls being saved: ", event.data )
 						newBubbles[lastIndex].sources = data.data
 					} else {
+						//newBubbles[lastIndex].text += data.data
 						newBubbles[lastIndex] = {
 							...newBubbles[lastIndex],
 							text: newBubbles[lastIndex].text + data.data,
@@ -145,7 +143,14 @@ function App() {
       },
       onclose() {
         console.log("Connection closed by the server");
-        setIsSubmitDisabled(false);
+				setIsSubmitDisabled(false);
+				setBubbles((currentBubbles) => {
+					let newBubbles = [...(currentBubbles || [])];
+					let lastIndex = newBubbles.length - 1;
+					newBubbles[lastIndex].isStreaming = false
+					return newBubbles
+				});
+				console.log(bubbles)
       },
       onerror(err) {
         console.log("There was an error from server", err);
@@ -156,6 +161,7 @@ function App() {
 
     setIntroduction(false);
   };
+
 
   return (
     <>

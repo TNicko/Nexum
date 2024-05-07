@@ -12,14 +12,20 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@llm-ui/code": "^0.0.13",
+    "@llm-ui/markdown": "^0.0.13",
+    "@llm-ui/react": "^0.0.13",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@mui/icons-material": "^5.15.4",
     "@mui/material": "^5.15.4",
     "@mui/styled-engine-sc": "^6.0.0-alpha.12",
+    "html-react-parser": "^5.1.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
     "react-pro-sidebar": "^1.1.0-alpha.2",
+    "remark-gfm": "^4.0.0",
+    "shiki": "^1.4.0",
     "styled-components": "^6.1.8"
   },
   "devDependencies": {

@@ -4,12 +4,13 @@ import Sources from "./Sources";
 import PersonIcon from "@mui/icons-material/Person";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import DoneIcon from "@mui/icons-material/Done";
-import Markdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 
 interface TextBox {
   text: string;
   type: number; // 0 for user, 1 for server response
   sources?: string[];
+	isStreaming: boolean;
 }
 
 interface ChatBubbleProps {
@@ -29,6 +30,17 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ bubble }) => {
       setIsCopy(false);
     }, 3000);
   };
+
+	//const { blockMatches } = useLLMOutput({
+		//llmOutput: bubble.text,
+		//fallbackBlock: {
+			//component: MarkdownComponent,
+			//lookBack: markdownLookBack(),
+		//},
+		//blocks: [],
+		//isStreamFinished: bubble.isStreaming,
+
+	//})
 
   return (
     <div>
@@ -59,7 +71,9 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ bubble }) => {
                 }}
               />
             )}
-            <Markdown>{bubble.text}</Markdown>
+						<div className="markdown-container">
+							<ReactMarkdown>{bubble.text}</ReactMarkdown>
+						</div>
             <div className="bubble-opts" onClick={copyToClipboard}>
               <div className={`bubble-opt copy-opt ${isCopy ? "copied" : ""}`}>
                 {isCopy ? (
