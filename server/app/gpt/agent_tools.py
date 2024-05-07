@@ -52,7 +52,7 @@ class SocietyEmbeddingTool(BaseTool):
         society_name: str,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ):
-        embedded_query = await self.embeddings.embed_query(society_name)
+        embedded_query = await self.embeddings.aembed_query(society_name)
         response = await self.supabase.rpc(
             "match_societies",
             {"query_embedding": embedded_query, "match_count": self.k},
@@ -113,7 +113,7 @@ class EventEmbeddingTool(BaseTool):
         event_query: str,
         run_manager: Optional[AsyncCallbackManagerForToolRun] = None,
     ):
-        embedded_query = await self.embeddings.embed_query(event_query)
+        embedded_query = await self.embeddings.aembed_query(event_query)
         response = await self.supabase.rpc(
             "match_events",
             {"query_embedding": embedded_query, "match_count": self.k},
