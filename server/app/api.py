@@ -32,7 +32,7 @@ async def query(request: CreateQuery):
     messages.append(request.message)
     pipeline = GPTPipeline(streaming=True, supabase=supabase)
     return StreamingResponse(
-        pipeline.stream_response(messages), media_type="text/event-stream"
+        pipeline.stream_response(messages), media_type="application/json"
     )
 
 

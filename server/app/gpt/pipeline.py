@@ -1,3 +1,5 @@
+import json
+import logging
 import asyncio
 import time
 from typing import Any, Awaitable
@@ -10,15 +12,20 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from app.db.supabase import create_supabase_client
 import app.gpt.system_prompts as sp
+from app.utils.log_config import setup_colored_logger
 from app.utils.time_utils import log_time
 from dotenv import load_dotenv
 from datetime import date 
 from urlextract import URLExtract
 load_dotenv()
 
+logger = setup_colored_logger("pipeline")
+logger.propagate = False
+logger.level = logging.DEBUG
 
 class GPTPipeline:
     def __init__(self, model_name: str = "gpt-3.5-turbo-0125", streaming: bool = False, supabase = None):
+        logger.debug("Initializing GPTPipeline with model_name=%s, streaming=%s", model_name, streaming)
         self.supabase = supabase if supabase else create_supabase_client()
         self.callback = AsyncIteratorCallbackHandler()
         self.llm = ChatOpenAI(temperature=0, model_name=model_name)
@@ -30,20 +37,19 @@ class GPTPipeline:
 
     async def stream_response(self, messages):
         """ Stream responses from the language model. """
+        logger.info("Streaming response...")
         prompt, relevant_urls = await self._process(messages)
-        relevant_urls_new =  [f'"{url}"' for url in relevant_urls]
-        relevant_urls_new = ', '.join(relevant_urls_new)
-        relevant_urls_new = f"[{relevant_urls_new}]"
-        #print(prompt)
-        print("relevant urls sent:")
-        print(relevant_urls_new)
-        yield f"data: {relevant_urls_new}\n\n"
+        logger.debug(f"Relevant URLS processed: {relevant_urls}")
+        # Stream the URLs as first streamed token
+        first_message = json.dumps({"type": "urls", "data": relevant_urls})
+        yield f"data: {first_message}\n\n"
+        
         model = self.stream_llm
         async def wrap_done(fn: Awaitable, event: asyncio.Event):
             try:
                 await fn
             except Exception as e:
-                print(f"Caught exception: {e}")
+                logger.error(f"Caught exception in wrap_done: {e}")
             finally:
                 event.set()
 
@@ -53,12 +59,14 @@ class GPTPipeline:
         )
 
         async for token in self.callback.aiter():
-            print("Yielding token: ", token)
-            yield f"data: {token}\n\n"
+            json_token = json.dumps({"type": "token", "data": token})
+            logger.debug(token)
+            yield f"data: {json_token}\n\n"
 
         await task
 
     async def get_response(self, messages):
+        logger.info("Generating response...")
         """ Process the messages and return a single final response. """
         prompt = await self._process(messages)
         try:
@@ -130,28 +138,21 @@ class GPTPipeline:
         simplify_start_time = time.time()
         simplified_request = await self._simplify_message_history(messages)
         log_time("Simplification process", simplify_start_time)
-        print(simplified_request)
         
         embed_start_time = time.time()
         embedding_response = await self._get_embedding_response(simplified_request)
         log_time("Embedding response time", embed_start_time)
-        print(embedding_response)
 
+        embed_no_url_start_time = time.time()
+        no_url_embedding_response, relevant_urls = await self._get_url_seperated(embedding_response)
+        log_time("Embedding remove url response time", embed_no_url_start_time)
         
         sql_start_time = time.time()
         await self.sql_agent.initialise()
         sql_response = await self.sql_agent.process(simplified_request)
         log_time("SQL agent response time", sql_start_time)
-        print(sql_response)
-
-        no_url_start_time = time.time()
-        no_url_response, relevant_urls = await self._get_url_seperated(sql_response + '\n' + embedding_response)
-        log_time("Embedding remove url response time", no_url_start_time)
-        print(no_url_response)
-        print("Relevant urls:")
-        print(relevant_urls)
 
         final_prompt = self._beautify(
-            no_url_response, simplified_request
+            sql_response + '\n' + no_url_embedding_response, simplified_request
         )
         return final_prompt, relevant_urls

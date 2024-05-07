@@ -26,7 +26,6 @@ function App() {
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const [userHasScrolledUp, setUserHasScrolledUp] = useState(false);
   const bubbleEl = useRef<HTMLDivElement>(null);
-	let isFirstOctet = true
 
   const checkIsAtBottom = useCallback(() => {
     const isAtBottom =
@@ -89,7 +88,6 @@ function App() {
 
   const handleButtonClick = async (value: string) => {
     setIsSubmitDisabled(true);
-		isFirstOctet = true
 
     const newAbortController = new AbortController();; // 60 seconds
     setAbortController(newAbortController);
@@ -106,6 +104,7 @@ function App() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+				"Accept": "application/json"
       },
 			body: JSON.stringify({ chat: bubbles, message: value }),
       signal: newAbortController.signal,
@@ -128,40 +127,25 @@ function App() {
 
       },
       onmessage(event) {
+				const data = JSON.parse(event.data);
         setBubbles((currentBubbles) => {
-          let newBubbles = currentBubbles ? [...currentBubbles] : [];
-					if (newBubbles.length > 0) {
-						// Assuming the last bubble is always the AI response to update
-						console.log(event)
-						let lastIndex = newBubbles.length - 1;
-						if (isFirstOctet) {
-							console.log("isFirst: ", event.data )
-							newBubbles[lastIndex] = {
-								...newBubbles[lastIndex],
-								sources: JSON.parse(event.data),
-							}
-							isFirstOctet = false
-						} else {
-							newBubbles[lastIndex] = {
-								...newBubbles[lastIndex],
-								text: newBubbles[lastIndex].text + event.data,
-							};
-              if(event.data===""){
-                console.log(event.data);
-                newBubbles[lastIndex] = {
-                  ...newBubbles[lastIndex],
-                  text: newBubbles[lastIndex].text + " \n ",
-                };
-              }
-						}
-          }
+					let newBubbles = [...(currentBubbles || [])];
+					let lastIndex = newBubbles.length - 1;
+					if (data.type == "urls") {
+						console.log("urls being saved: ", event.data )
+						newBubbles[lastIndex].sources = data.data
+					} else {
+						newBubbles[lastIndex] = {
+							...newBubbles[lastIndex],
+							text: newBubbles[lastIndex].text + data.data,
+						};
+					}
           return newBubbles;
         });
       },
       onclose() {
         console.log("Connection closed by the server");
         setIsSubmitDisabled(false);
-        throw new Error();
       },
       onerror(err) {
         console.log("There was an error from server", err);

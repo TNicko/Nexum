@@ -9,7 +9,6 @@ const Sources: React.FC<SourcesProps> = ({ refs }) => {
   const [hoveredSource, setHoveredSource] = useState<number | null>(null);
 
   const urlDisplayLength = 20;
-
   return (
     <div
       className={`sources-container ${hoveredSource !== null ? "blurred" : ""}`}
