@@ -81,7 +81,7 @@ class GPTPipeline:
         logger.info("Streaming process started...")
         async for token in self.callback.aiter():
             json_token = json.dumps({"type": "token", "data": token})
-            logger.debug(token)
+            # logger.debug(token)
             yield f"data: {json_token}\n\n"
 
         await task
@@ -105,24 +105,28 @@ class GPTPipeline:
             "match_documents",
             {"query_embedding": embedded_query, "match_count": k},
         ).execute()
-        document_string = " ".join(
-            f"Website chunk {doc['url']} --- {doc['content']}"
-            for doc in response.data
-        )
 
+        if response.data:
+            documents = [
+                {"url": doc["url"], "content": doc["content"]}
+                for doc in response.data
+            ]
+        else:
+            documents = [
+                {"url": "No URL", "content": "No relevant documents found."}
+            ]
+        input_data = {"query": queryToMatch, "documents": documents}
+        input_json = json.dumps(input_data)
         prompt = ChatPromptTemplate.from_messages(
-            [("system", sp.EMBEDDING_RSP_PROMPT), ("user", "{input}")]
+            [
+                ("system", sp.EMBEDDING_RSP_PROMPT),
+                ("user", "{input}"),
+            ]
         )
+        logger.debug(f"Embedding prompt:\n{prompt}")
         chain = prompt | self.llm | self.output_parser
 
-        return await chain.ainvoke(
-            {
-                "input": "Question: "
-                + queryToMatch
-                + " Information: "
-                + document_string
-            }
-        )
+        return await chain.ainvoke({"input": input_json})
 
     async def _simplify_message_history(self, messages):
         # todays_date = date.today()
@@ -141,7 +145,7 @@ class GPTPipeline:
                 ("user", "{input}"),
             ]
         )
-        logger.debug(f"Simplication prompt:\n{prompt}")
+        # logger.debug(f"Simplication prompt:\n{prompt}")
         chain = prompt | self.llm | self.output_parser
         return await chain.ainvoke({"input": messages})
 

@@ -31,24 +31,35 @@ Output: 'Nick Jennings is the head of the university. Tell me more about him.'
 """
 
 EMBEDDING_RSP_PROMPT = """
-You are a bot designed to answer a question using chunks of text obtained from websites. 
-Given an input question, you are to search the data chunks for a exact answer to the question.
-Ensure that the information you gather is a direct and accurate answer to the question, for example:
-You must only use information which is found within the data chunks themselves, you must never use data not found within the chunks.
-If an answer is found, you must provide the url of the related chunk as a seperate statement under the answer. Do not include the url in the answer.
-Reply with '---' if you are unable to confidently and precisely answer the question using the data.
+You are a language model trained to answer queries using only the provided documents. 
+Each document is presented as a JSON object containing a URL and relevant 
+content. Your response must adhere to the following rules:
 
-Examples:
-Question : Tell me more about coffee society Information : https://www.lboro.ac.uk/news-events/events/ias-friends-and-fellows-coffee-morning/ --- The Institute of Advanced Studies (IAS) are hosting this informal gathering with coffee and cakes, where we will be joined by the fourth Residential Fellow of this academic year, Professor Jane Chin Davidson.
-Response : ---
+1. Base your response solely on the information provided in the documents. Do not use external knowledge or infer answers that aren't directly supported by the documents.
+2. If no documents are provided, or if the documents contain no relevant information to the query, you must explicitly state that no information was found by responding with 'No information available'.
+3. If the documents provided do not closely relate to the query, ignore them and indicate that no relevant information could be found with a response of 'No relevant information available'.
+4. Your response must directly answer the user’s question without adding any extraneous details or information. Provide concise and relevant answers that are strictly derived from the content of the documents.
 
-Question : Tell me more about coffee society Information : https://lsu.co.uk/societies/coffee-club --- We are a welcoming, friendly, and inclusive society, looking to enjoy some of the finest (non-alcoholic) drinks from Loughborough and beyond! Whether you’re a Nespresso novice or espresso expert we’d love to meet you! In joining us, you’ll get to discover the best cafes in town, meet likeminded coffee lovers and gain access to exclusive members’ discounts, socials and more!
-Response : The coffee society offers the oppurtunity for students to enjoy some of the finest drinks from Loughborough and beyond in a friendly and welcoming atmosphere. It includes benefits such as members discounts and social activities.
-https://lsu.co.uk/societies/coffee-club
+Your task is to parse the query and the documents, decide if the documents contain relevant information to answer the query, and construct a response accordingly.
 
-Question : Who is the president of the uni? Information : https://www.lboro.ac.uk/services/vco/smt/vc-prof-jennings --- Professor Jennings is Vice-Chancellor and President of Loughborough University. He was previously the Vice-Provost for Research and Enterprise at Imperial College London, the UK Government’s first Chief Scientific Advisor for National Security, and Regius Professor of Computer Science at the University of Southampton. Professor Nick Jennings is an internationally-recognised authority in the areas of AI, autonomous systems, cyber-security and agent-based computing.
-Response : The president of the uni is Professor Nick Jennings. He was previously the Vice-Provost for Research and Enterprise at Imperial College London, the UK Government’s first Chief Scientific Advisor for National Security, and Regius Professor of Computer Science at the University of Southampton.
-https://www.lboro.ac.uk/services/vco/smt/vc-prof-jennings
+Example JSON Input:
+{{
+    "query": "Who is the president of the university?",
+    "documents": [
+        {{"url": "https://www.lboro.ac.uk/services/vco/smt/vc-prof-jennings", "content": "Professor Jennings is Vice-Chancellor and President of Loughborough University. He was previously the Vice-Provost for Research and Enterprise at Imperial College London, the UK Government’s first Chief Scientific Advisor for National Security, and Regius Professor of Computer Science at the University of Southampton. Professor Nick Jennings is an internationally-recognised authority in the areas of AI, autonomous systems, cyber-security and agent-based computing."}}
+    ]
+}}
+
+Example Outputs:
+- If the content directly answers the query: 
+  "The president of the university is Professor Nick Jennings."
+  "https://www.lboro.ac.uk/services/vco/smt/vc-prof-jennings"
+
+- If the documents do not contain relevant information or are unrelated to the query:
+  "No relevant information available."
+
+- If no documents are provided:
+  "No information available."
 """
 
 REMOVE_URLS_PROMPT = """
