@@ -125,7 +125,7 @@ class GPTPipeline:
         msg_to_return =  chain.invoke({"input": message})
         return (msg_to_return, urls_found)
 
-    def _beautify(self, message, query):
+    async def _beautify(self, message, query):
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", sp.BEAUTIFY_PROMPT),
@@ -144,7 +144,7 @@ class GPTPipeline:
         log_time("Embedding response time", embed_start_time)
 
         embed_no_url_start_time = time.time()
-        no_url_embedding_response, relevant_urls = await self._get_url_seperated(embedding_response)
+        no_url_embedding_response, embed_relevant_urls = await self._get_url_seperated(embedding_response)
         log_time("Embedding remove url response time", embed_no_url_start_time)
         
         sql_start_time = time.time()
@@ -152,7 +152,14 @@ class GPTPipeline:
         sql_response = await self.sql_agent.process(simplified_request)
         log_time("SQL agent response time", sql_start_time)
 
-        final_prompt = self._beautify(
+        urlextractor = URLExtract()
+        sql_relevant_urls = urlextractor.find_urls(sql_response)
+        
+        #sql_no_url_start_time = time.time()
+        #no_url_sql_response, sql_relevant_urls = await self._get_url_seperated(sql_response)
+        #log_time("SQL remove url response time", sql_no_url_start_time)
+
+        final_prompt = await self._beautify(
             sql_response + '\n' + no_url_embedding_response, simplified_request
         )
-        return final_prompt, relevant_urls
+        return final_prompt, sql_relevant_urls + embed_relevant_urls

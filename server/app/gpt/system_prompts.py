@@ -11,8 +11,11 @@ Examples:
 Input: ['What events are happening today?']
 Output: 'What events are happening today?'
 
-Input: ['What events are happening today?', 'The events that are happening today are FND night.', 'what about tomorrow?']
-Output: 'What events are happening tomorrow?'
+Input: ['What events are happening today?', 'The events that are happening today are FND night.', 'who is the head of the uni?']
+Output: 'who is the head of the uni?'
+
+Input: ['What events are happening today?', 'The events that are happening today are FND night.', 'who is the head of the uni?', 'Professor Nick Jennings', 'Tell me about the gaming society']
+Output: 'tell me about the gaming society'
 """
 
 EMBEDDING_RSP_PROMPT = """
