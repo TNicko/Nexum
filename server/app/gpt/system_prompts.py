@@ -12,7 +12,7 @@ Input: ['What events are happening today?']
 Output: 'What events are happening today?'
 
 Input: ['What events are happening today?', 'The events that are happening today are FND night.', 'what about tomorrow?']
-Output: 'What event are happening tomorrow?'
+Output: 'What events are happening tomorrow?'
 """
 
 EMBEDDING_RSP_PROMPT = """
