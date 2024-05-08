@@ -127,4 +127,4 @@ class EventEmbeddingTool(BaseTool):
             .in_("id", ids)
             .execute()
         )
-        return response.data.lol
+        return response.data

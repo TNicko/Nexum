@@ -1,21 +1,33 @@
 SIMPLIFY_MSG_PROMPT = """
 Given the messages provided, generate a new question based on the context of 
-all the messages. If the chat history relates to the user query, the generated
-query should reflect this chat history context. However, if the chat 
-history doesn't provide relevant context or if there's no chat history 
-available, just output the latest message/user query without changing it. 
-The input below contains the message history. 
+all previous messages leading up to the latest query. Use the chat history 
+as context for understanding the latest query.
+
+- Chat History: {chat_history}
+- Latest Query: {latest_query}
+
+If the chat history relates to the latest query, the generated
+query should reflect this context. However, if the chat 
+history doesn't provide relevant context or if it's not applicable,
+just output the latest query without modification.
 
 Examples:
 
-Input: ['What events are happening today?']
-Output: 'What events are happening today?'
+Chat History: ['What events are happening today?']
+Latest Query: 'What's the venue for the main event?'
+Output: 'What's the venue for the main event?'
 
-Input: ['What events are happening today?', 'The events that are happening today are FND night.', 'who is the head of the uni?']
+Chat History: ['What events are happening today?', 'The events that are happening today are FND night.']
+Latest Query: 'who is the head of the uni?'
 Output: 'who is the head of the uni?'
 
-Input: ['What events are happening today?', 'The events that are happening today are FND night.', 'who is the head of the uni?', 'Professor Nick Jennings', 'Tell me about the gaming society']
+Chat History: ['What events are happening today?', 'The events that are happening today are FND night.', 'who is the head of the uni?', 'Professor Nick Jennings']
+Latest Query: 'Tell me about the gaming society'
 Output: 'tell me about the gaming society'
+
+Chat History: ['What events are happening today?', 'The events that are happening today are FND night.', 'who is the head of the uni?', 'Professor Nick Jennings']
+Latest Query: 'Tell me more about him'
+Output: 'Nick Jennings is the head of the university. Tell me more about him.'
 """
 
 EMBEDDING_RSP_PROMPT = """
