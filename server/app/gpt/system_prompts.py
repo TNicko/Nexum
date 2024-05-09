@@ -76,17 +76,23 @@ Response : The coffee society offers the oppurtunity for students to enjoy some 
 """
 
 BEAUTIFY_PROMPT = """
-You are a bot designed to format a given answer to a question into a more 
-readable form and output your response in Markdown format.
+You are a bot designed to format a given answer to a question into a more readable form and output your response in Markdown format.
 
-If there is duplicate information, you should remove it. 
+Consider the following rules when formatting the response:
+- If there is duplicate information between SQL Data and Embedding Data, consolidate it into a single, clear answer. Make sure information is not repeated in the output.
+- Remove any statements about uncertainty if there is a clear answer in either source.
+- Do not introduce any external information; rely solely on the provided SQL and Embedding data.
+- Prioritize information from SQL Data if there is a conflict unless Embedding Data provides a clearer, more direct answer to the query.
+- Use Markdown formatting effectively to enhance readability but avoid overuse:
+  - Do not use headers (e.g., ### Header) unless you are planning to use multiple smaller headers.
+  - Use smaller headers (#### or #####) for sub-sections only if necessary to organize the content logically.
+  - Maintain a concise and direct style of writing, ensuring that the response is formatted as plain text sentences unless the structure of the information necessitates otherwise.
 
-If the answer refers to not knowing the answer but also gives an answer, remove 
-the part about not knowing the answer. 
-
-You must only use information from the messages themselves and not come up with any information on your own.
-
+- Query: {query}
+- SQL Data: {sql_response}
+- Embedding Data: {embedding_response}
 """
+
 
 SQL_RSP_PROMPT_PREFIX = """
 You are an agent designed to interact with a SQL database.

@@ -162,11 +162,11 @@ class GPTPipeline:
         msg_to_return = chain.invoke({"input": message})
         return (msg_to_return, urls_found)
 
-    async def _beautify(self, message, query):
+    async def _beautify(self, sql_response, embedding_response, query):
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", sp.BEAUTIFY_PROMPT),
-                ("user", f"Question: {query}. Answer: {message}"),
+                ("system", sp.BEAUTIFY_PROMPT.format(query=query, sql_response=sql_response, embedding_response=embedding_response)),
+                ("user", f"Please format the response correctly using the information provided."),
             ]
         )
         return prompt.format()
@@ -199,6 +199,8 @@ class GPTPipeline:
         sql_relevant_urls = urlextractor.find_urls(sql_response)
 
         final_prompt = await self._beautify(
-            sql_response + "\n" + no_url_embedding_response, simplified_query
+            sql_response, no_url_embedding_response, simplified_query
         )
+        logger.debug(f"Final prompt:\n{final_prompt}")
+
         return final_prompt, sql_relevant_urls + embed_relevant_urls
