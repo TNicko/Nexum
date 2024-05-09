@@ -6,12 +6,14 @@ import ChatBubble from "./components/ChatBubble";
 import Grid from "@mui/material/Grid";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import useLocalStorage from "./localStorage";
+import Loader from "./components/Loader";
 
 interface TextBox {
   text: string;
   type: number; // 0 for user, 1 for server response
   sources?: string[];
 	isStreaming: boolean;
+	isLoading: boolean;
 }
 
 function App() {
@@ -90,7 +92,7 @@ function App() {
     setAbortController(newAbortController);
 
     // Add user's message as a new bubble
-    let newUserTextBox: TextBox = { text: value, type: 0, isStreaming: false};
+    let newUserTextBox: TextBox = { text: value, type: 0, isStreaming: false, isLoading: false};
     setBubbles((oldBoxes) => [...(oldBoxes ?? []), newUserTextBox]);
 
     setTimeout(function () {
@@ -111,7 +113,7 @@ function App() {
           // Create bubble for AI response
           setBubbles((oldBoxes) => [
             ...(oldBoxes ?? []),
-            { text: "", type: 1, sources: [], isStreaming: true},
+            { text: "", type: 1, sources: [], isStreaming: true, isLoading: true},
           ]);
         } else if (
           res.status >= 400 &&
@@ -136,6 +138,8 @@ function App() {
 						newBubbles[lastIndex] = {
 							...newBubbles[lastIndex],
 							text: newBubbles[lastIndex].text + data.data,
+							isLoading: false,
+
 						};
 					}
           return newBubbles;
@@ -187,7 +191,7 @@ function App() {
               >
                 {bubbles?.map((bubble, index) => (
                   <Grid key={index} item xs={100}>
-                    <ChatBubble bubble={bubble} />
+										{bubble.isLoading ? <Loader/> : <ChatBubble bubble={bubble} />}
                   </Grid>
                 ))}
               </Grid>

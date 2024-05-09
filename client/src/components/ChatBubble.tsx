@@ -11,6 +11,7 @@ interface TextBox {
   type: number; // 0 for user, 1 for server response
   sources?: string[];
 	isStreaming: boolean;
+	isLoading: boolean;
 }
 
 interface ChatBubbleProps {
@@ -30,17 +31,6 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ bubble }) => {
       setIsCopy(false);
     }, 3000);
   };
-
-	//const { blockMatches } = useLLMOutput({
-		//llmOutput: bubble.text,
-		//fallbackBlock: {
-			//component: MarkdownComponent,
-			//lookBack: markdownLookBack(),
-		//},
-		//blocks: [],
-		//isStreamFinished: bubble.isStreaming,
-
-	//})
 
   return (
     <div>
