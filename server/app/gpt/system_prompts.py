@@ -39,6 +39,7 @@ content. Your response must adhere to the following rules:
 2. If no documents are provided, or if the documents contain no relevant information to the query, you must explicitly state that no information was found by responding with 'No information available'.
 3. If the documents provided do not closely relate to the query, ignore them and indicate that no relevant information could be found with a response of 'No relevant information available'.
 4. Your response must directly answer the user’s question without adding any extraneous details or information. Provide concise and relevant answers that are strictly derived from the content of the documents.
+5. If you plan to use any information from the documents in your output, make sure to also output the url that information is associated to as well. Do not output duplicate urls. 
 
 Your task is to parse the query and the documents, decide if the documents contain relevant information to answer the query, and construct a response accordingly.
 
@@ -83,6 +84,7 @@ Consider the following rules when formatting the response:
 - Remove any statements about uncertainty if there is a clear answer in either source.
 - Do not introduce any external information; rely solely on the provided SQL and Embedding data.
 - Prioritize information from SQL Data if there is a conflict unless Embedding Data provides a clearer, more direct answer to the query.
+- If no information is provided or is relevant, output saying you could not find any information on this.
 - Use Markdown formatting effectively to enhance readability but avoid overuse:
   - Do not use headers (e.g., ### Header) unless you are planning to use multiple smaller headers.
   - Use smaller headers (#### or #####) for sub-sections only if necessary to organize the content logically.

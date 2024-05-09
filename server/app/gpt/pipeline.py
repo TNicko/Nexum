@@ -117,6 +117,7 @@ class GPTPipeline:
             ]
         input_data = {"query": queryToMatch, "documents": documents}
         input_json = json.dumps(input_data)
+        logger.debug(f"Embeddings Documents:\n{documents}")
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", sp.EMBEDDING_RSP_PROMPT),
