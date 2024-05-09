@@ -1,4 +1,5 @@
 import os
+import logging
 import app.gpt.system_prompts as sp
 from app.gpt.agent_tools import EventEmbeddingTool, SocietyEmbeddingTool
 from app.db.supabase import create_supabase_client
@@ -16,6 +17,13 @@ from langchain_core.prompts import (
     SystemMessagePromptTemplate,
 )
 from dotenv import load_dotenv
+
+
+from app.utils.log_config import setup_colored_logger
+logger = setup_colored_logger("sql_agent")
+logger.propagate = False
+logger.level = logging.DEBUG
+
 
 load_dotenv()
 
@@ -87,6 +95,7 @@ class SQLQueryAgent:
         self.db = SQLDatabase.from_uri(
             POSTGRES_URI, include_tables=QUERY_TABLES
         )
+        self.table_info = self.db.get_table_info()
         self.tools = [
             EventEmbeddingTool(
                 embeddings=self.embeddings, supabase=self.supabase
@@ -117,7 +126,7 @@ class SQLQueryAgent:
             example_prompt=PromptTemplate.from_template(
                 "User input: {input}\nSQL query: {query}"
             ),
-            input_variables=["input", "dialect", "top_k"],
+            input_variables=["input", "dialect", "top_k", "table_info"],
             prefix=sp.SQL_RSP_PROMPT_PREFIX,
             suffix="",
         )
@@ -140,5 +149,6 @@ class SQLQueryAgent:
         )
 
     async def process(self, message: str):
+        # logger.debug(self.agent)
         response = await self.agent.ainvoke({"input": message})
         return response["output"]
