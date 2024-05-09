@@ -1,15 +1,15 @@
 SIMPLIFY_MSG_PROMPT = """
 Given the messages provided, generate a new question based on the context of 
 all previous messages leading up to the latest query. Use the chat history 
-as context for understanding the latest query.
+as context for understanding the latest query. 
 
 - Chat History: {chat_history}
 - Latest Query: {latest_query}
 
-If the chat history relates to the latest query, the generated
-query should reflect this context. However, if the chat 
-history doesn't provide relevant context or if it's not applicable,
-just output the latest query without modification.
+Your response must adhere to the following rules:
+- If the chat history relates to the latest query, the generated query should reflect this context. 
+- If the chat history doesn't provide relevant context or if it's not applicable, just output the latest query without modification.
+- The output should always be just the query, just like in the examples below.
 
 Examples:
 
@@ -80,10 +80,10 @@ BEAUTIFY_PROMPT = """
 You are a bot designed to format a given answer to a question into a more readable form and output your response in Markdown format.
 
 Consider the following rules when formatting the response:
+- Utilise either or both the sql data and embedding data. If only one says "I dont know", then output the answer from the other one.
 - If there is duplicate information between SQL Data and Embedding Data, consolidate it into a single, clear answer. Make sure information is not repeated in the output.
 - Remove any statements about uncertainty if there is a clear answer in either source.
 - Do not introduce any external information; rely solely on the provided SQL and Embedding data.
-- Prioritize information from SQL Data if there is a conflict unless Embedding Data provides a clearer, more direct answer to the query.
 - If no information is provided or is relevant, output saying you could not find any information on this.
 - Use Markdown formatting effectively to enhance readability but avoid overuse:
   - Do not use headers (e.g., ### Header) unless you are planning to use multiple smaller headers.
