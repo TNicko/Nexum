@@ -8,5 +8,4 @@ campus life, and more, enhancing the student and staff experience.
 
 ## System Architecture 
 
-![alt text](https://github.com/TNicko/nexum/blob/main/sys-arch-5.png?raw=true)
-
+![nexum](https://github.com/TNicko/Nexum/blob/main/imgs/sys-arch-5.png)
